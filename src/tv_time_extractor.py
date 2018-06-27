@@ -34,7 +34,7 @@ class TvTimeExtractor(object):
         f = open(file_path, "w+")
         f.write('%s' % datetime.datetime.now().date())
 
-        for show in data:
+        for show in sorted(data, key=lambda show: show[0]):
             title = show[0]
             f.write('\n\n\n%s' % title)
             f.write('\n%s\n' % ('-' * len(title)))
