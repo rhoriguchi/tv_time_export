@@ -1,6 +1,5 @@
 import datetime
 import os
-import sys
 
 import yaml
 
@@ -9,17 +8,12 @@ from src.request_handler import RequestHandler
 
 class TvTimeExtractor(object):
     def get_data(self):
-        data = None
-
         content = self._read_config()
         request_handler = RequestHandler(content['username'], content['password'])
 
         try:
             request_handler.login()
             data = request_handler.get_data()
-        except ValueError as e:
-            print('ERROR %s' % str(e))
-            sys.exit()
         finally:
             request_handler.logout()
 

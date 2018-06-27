@@ -10,4 +10,4 @@ class ErrorHandler(object):
         content = str(response.content)
         for error_message in ERROR_MESSAGES:
             if error_message in content:
-                raise ValueError('Tv Time returned error: %s' % error_message)
+                raise ValueError('Tv Time returned: %s' % error_message)
