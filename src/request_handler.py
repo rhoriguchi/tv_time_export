@@ -35,8 +35,22 @@ class RequestHandler(object):
         self._session.get(url)
 
     def get_data(self):
+        shows = self._get_all_shows()
+        print(shows)
+
+    def _get_all_shows(self):
         url = urljoin(PAGE_URL, ('user/%s/profile' % self._profile_id))
         response = self._session.get(url)
 
         soup = BeautifulSoup(response.content, 'html.parser')
-        print(soup.)
+        links = soup.find_all('ul', {'class': 'shows-list'})[1].find_all('a')
+
+        shows = {}
+        for link in links:
+            text = ' '.join(link.text.split())
+
+            match = re.search('^.*/show/(\d*)', link.get('href'))
+            if text is not '':
+                shows[text] = match.group(1)
+
+        return shows
