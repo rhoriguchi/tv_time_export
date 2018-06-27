@@ -28,7 +28,7 @@ class TvTimeExtractor(object):
         if not os.path.exists(backup_folder_path):
             os.makedirs(backup_folder_path)
 
-        date_time = datetime.datetime.now().strftime('%d.%m.%Y')
+        date_time = datetime.datetime.now().strftime('%H.%M.%S_%d.%m.%Y')
         file_name = '%s_%s.txt' % (content['username'], date_time)
         file_path = os.path.join(backup_folder_path, file_name)
 
