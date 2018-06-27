@@ -33,6 +33,8 @@ class RequestHandler(object):
     def logout(self):
         url = urljoin(PAGE_URL, 'signout')
         self._session.get(url)
+        
+        self._profile_id = None
 
     def get_data(self):
         ids = self._get_all_show_ids()
