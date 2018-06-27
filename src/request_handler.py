@@ -19,7 +19,7 @@ class RequestHandler(object):
         self._profile_id = None
 
     def login(self):
-        print('INFO Login')
+        print('INFO Login to Tv Time')
 
         url = urljoin(PAGE_URL, 'signin')
         data = {'username': self._username, 'password': self._password}
@@ -34,7 +34,7 @@ class RequestHandler(object):
                 self._profile_id = match.group(1)
 
     def logout(self):
-        print('INFO Logout')
+        print('INFO Logout of Tv Time')
 
         url = urljoin(PAGE_URL, 'signout')
         self._session.get(url)
@@ -42,7 +42,7 @@ class RequestHandler(object):
         self._profile_id = None
 
     def get_data(self):
-        print('INFO Collecting data')
+        print('INFO Collecting data from Tv Time')
         ids = self._get_all_show_ids()
 
         pool = ThreadPool(NUMBER_OF_THREADS)
