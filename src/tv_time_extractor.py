@@ -23,14 +23,20 @@ class TvTimeExtractor(object):
         print('INFO Saving data')
 
         content = self._read_config()
-        file_path = os.path.join(content['save_path'], 'tv_time_backup.txt')
+
+        backup_folder_path = os.path.join(content['save_path'], 'tv_time_backup')
+        if not os.path.exists(backup_folder_path):
+            os.makedirs(backup_folder_path)
+
+        date_time = datetime.datetime.now().strftime('%d.%m.%Y')
+        file_name = '%s_%s.txt' % (content['username'], date_time)
+        file_path = os.path.join(backup_folder_path, file_name)
 
         f = open(file_path, "w+")
-        f.write('%s' % datetime.datetime.now().date())
 
         for show in sorted(data, key=lambda show: show[0]):
             title = show[0]
-            f.write('\n\n\n%s' % title)
+            f.write('%s' % title)
             f.write('\n%s\n' % ('-' * len(title)))
 
             for season_number, season in show[1].items():
@@ -41,6 +47,8 @@ class TvTimeExtractor(object):
                         state = 'unwatched'
 
                     f.write('\nS%02dE%02d %s' % (int(season_number), int(episode_number), state))
+
+            f.write('\n\n\n')
 
         f.close()
 
