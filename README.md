@@ -5,4 +5,5 @@
 ```yaml
 username: ****
 password: ****
+sava_path: ****
 ```

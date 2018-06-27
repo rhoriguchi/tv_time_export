@@ -1,4 +1,5 @@
 import re
+from multiprocessing.dummy import Pool as ThreadPool
 from urllib.parse import urljoin
 
 import requests
@@ -7,6 +8,7 @@ from bs4 import BeautifulSoup
 from src.error_handler import ErrorHandler
 
 PAGE_URL = 'https://www.tvtime.com/'
+NUMBER_OF_THREADS = 4
 
 
 class RequestHandler(object):
@@ -18,7 +20,6 @@ class RequestHandler(object):
 
     def login(self):
         url = urljoin(PAGE_URL, 'signin')
-
         data = {'username': self._username, 'password': self._password}
         response = self._session.post(url, data=data)
 
@@ -33,16 +34,15 @@ class RequestHandler(object):
     def logout(self):
         url = urljoin(PAGE_URL, 'signout')
         self._session.get(url)
-        
+
         self._profile_id = None
 
     def get_data(self):
         ids = self._get_all_show_ids()
 
-        # TODO parallel
-        for id in ids:
-            data = self._get_show_data(id)
-            print(data)
+        pool = ThreadPool(NUMBER_OF_THREADS)
+        data = pool.map(self._get_show_data, ids)
+        return data
 
     def _get_show_data(self, id):
         status = {}
@@ -77,7 +77,7 @@ class RequestHandler(object):
             status[i] = season_status
             i += 1
 
-        return {title: status}
+        return title, status
 
     @staticmethod
     def _remove_extra_spaces(text):
