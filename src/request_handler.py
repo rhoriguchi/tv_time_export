@@ -35,22 +35,62 @@ class RequestHandler(object):
         self._session.get(url)
 
     def get_data(self):
-        shows = self._get_all_shows()
-        print(shows)
+        ids = self._get_all_show_ids()
 
-    def _get_all_shows(self):
+        # TODO parallel
+        for id in ids:
+            data = self._get_show_data(id)
+            print(data)
+
+    def _get_show_data(self, id):
+        status = {}
+
+        url = urljoin(PAGE_URL, ('show/%s/' % id))
+        response = self._session.get(url)
+
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        title_raw = soup.find(id='top-banner').find_all('h1')[0].text
+        title = self._remove_extra_spaces(title_raw)
+
+        i = 1
+        while True:
+            season_status = {}
+
+            season = soup.find(id='season%s-content' % i)
+            if season is None:
+                break
+
+            episodes = season.find_all('li', {'class': 'episode-wrapper'})
+            for episode in episodes:
+                number_raw = episode.find_all('span', {'class': 'episode-nb-label'})[0].text
+                number = self._remove_extra_spaces(number_raw)
+
+                link = episode.find_all('a', {'class': 'watched-btn'})[0]
+                if 'active' in link.attrs['class']:
+                    season_status[number] = True
+                else:
+                    season_status[number] = False
+
+            status[i] = season_status
+            i += 1
+
+        return {title: status}
+
+    @staticmethod
+    def _remove_extra_spaces(text):
+        return ' '.join(text.split())
+
+    def _get_all_show_ids(self):
         url = urljoin(PAGE_URL, ('user/%s/profile' % self._profile_id))
         response = self._session.get(url)
 
         soup = BeautifulSoup(response.content, 'html.parser')
         links = soup.find_all('ul', {'class': 'shows-list'})[1].find_all('a')
 
-        shows = {}
+        shows = set()
         for link in links:
-            text = ' '.join(link.text.split())
-
             match = re.search('^.*/show/(\d*)', link.get('href'))
-            if text is not '':
-                shows[text] = match.group(1)
+            shows.add(match.group(1))
 
         return shows
