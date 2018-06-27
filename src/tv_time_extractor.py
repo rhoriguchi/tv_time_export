@@ -1,4 +1,6 @@
+import datetime
 import os
+import sys
 
 import yaml
 
@@ -16,15 +18,37 @@ class TvTimeExtractor(object):
             request_handler.login()
             data = request_handler.get_data()
         except ValueError as e:
-            print(str(e))
+            print('ERROR %s' % str(e))
+            sys.exit()
         finally:
             request_handler.logout()
 
         return data
 
-    @staticmethod
-    def save_data(data):
-        print("")
+    def save_data(self, data):
+        print('INFO Saving data')
+
+        content = self._read_config()
+        file_path = os.path.join(content['save_path'], 'tv_time_backup.txt')
+
+        f = open(file_path, "w+")
+        f.write('%s' % datetime.datetime.now().date())
+
+        for show in data:
+            title = show[0]
+            f.write('\n\n\n%s' % title)
+            f.write('\n%s\n' % ('-' * len(title)))
+
+            for season_number, season in show[1].items():
+                for episode_number, episode in season.items():
+                    if episode is True:
+                        state = 'watched'
+                    else:
+                        state = 'unwatched'
+
+                    f.write('\nS%02dE%02d %s' % (int(season_number), int(episode_number), state))
+
+        f.close()
 
     @staticmethod
     def _read_config():

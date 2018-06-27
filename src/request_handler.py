@@ -19,6 +19,8 @@ class RequestHandler(object):
         self._profile_id = None
 
     def login(self):
+        print('INFO Login')
+
         url = urljoin(PAGE_URL, 'signin')
         data = {'username': self._username, 'password': self._password}
         response = self._session.post(url, data=data)
@@ -32,12 +34,15 @@ class RequestHandler(object):
                 self._profile_id = match.group(1)
 
     def logout(self):
+        print('INFO Logout')
+
         url = urljoin(PAGE_URL, 'signout')
         self._session.get(url)
 
         self._profile_id = None
 
     def get_data(self):
+        print('INFO Collecting data')
         ids = self._get_all_show_ids()
 
         pool = ThreadPool(NUMBER_OF_THREADS)
