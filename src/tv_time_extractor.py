@@ -7,9 +7,11 @@ from src.request_handler import RequestHandler
 
 
 class TvTimeExtractor(object):
+    def __init__(self):
+        self._content = self._read_config()
+
     def get_data(self):
-        content = self._read_config()
-        request_handler = RequestHandler(content['username'], content['password'])
+        request_handler = RequestHandler(self._content['username'], self._content['password'])
 
         try:
             request_handler.login()
@@ -22,14 +24,12 @@ class TvTimeExtractor(object):
     def save_data(self, data):
         print('INFO Saving data')
 
-        content = self._read_config()
-
-        backup_folder_path = os.path.join(content['save_path'], 'tv_time_backup')
+        backup_folder_path = os.path.join(self._content['save_path'], 'tv_time_backup')
         if not os.path.exists(backup_folder_path):
             os.makedirs(backup_folder_path)
 
         date_time = datetime.datetime.now().strftime('%H.%M.%S_%d.%m.%Y')
-        file_name = '%s_%s.txt' % (content['username'], date_time)
+        file_name = '%s_%s.txt' % (self._content['username'], date_time)
         file_path = os.path.join(backup_folder_path, file_name)
 
         f = open(file_path, "w+")
@@ -54,18 +54,22 @@ class TvTimeExtractor(object):
 
     @staticmethod
     def _read_config():
+        print('INFO Reading config.yaml')
+
         path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'config.yaml'))
-        content = None
+        if not os.path.exists(path):
+            raise ValueError('config.yaml does not exist')
 
         with open(path, 'r') as stream:
-            try:
-                content = yaml.load(stream)
-            except yaml.YAMLError as exc:
-                print(exc)
+            content = yaml.load(stream)
 
-            if content['username'] is None or \
-                    content['password'] is None or \
-                    content['save_path'] is None:
-                raise ValueError('config.yaml not correct')
+            if content['username'] is None:
+                raise ValueError('username is empty in config.yaml')
+
+            if content['password'] is None:
+                raise ValueError('password is empty in config.yaml')
+
+            if content['save_path'] is None:
+                raise ValueError('save_path is empty in config.yaml')
 
             return content
