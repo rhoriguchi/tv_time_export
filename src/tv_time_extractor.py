@@ -11,7 +11,10 @@ class TvTimeExtractor(object):
         self._content = self._read_config()
 
     def get_data(self):
-        request_handler = RequestHandler(self._content['username'], self._content['password'])
+        try:
+            request_handler = RequestHandler(self._content['username'], self._content['password'], self._content['debug'])
+        except KeyError:
+            request_handler = RequestHandler(self._content['username'], self._content['password'])
 
         try:
             request_handler.login()

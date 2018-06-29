@@ -12,10 +12,11 @@ NUMBER_OF_THREADS = 4
 
 
 class RequestHandler(object):
-    def __init__(self, username, password):
+    def __init__(self, username, password, debug=False):
         self._session = requests.Session()
         self._username = username
         self._password = password
+        self._debug = debug
         self._profile_id = None
 
     def login(self):
@@ -59,6 +60,9 @@ class RequestHandler(object):
 
         title_raw = soup.find(id='top-banner').find_all('h1')[0].text
         title = self._remove_extra_spaces(title_raw)
+
+        if self._debug is True:
+            print('DEBUG Collecting data from "%s"' %title)
 
         i = 1
         while True:
