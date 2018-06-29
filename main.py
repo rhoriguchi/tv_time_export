@@ -8,6 +8,8 @@ if __name__ == '__main__':
         extractor = TvTimeExtractor()
         data = extractor.get_data()
         extractor.save_data(data)
+    except KeyboardInterrupt:
+        sys.exit()
     except Exception as e:
         print('\nERROR %s' % str(e))
         traceback.print_exc()
