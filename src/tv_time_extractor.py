@@ -24,13 +24,9 @@ class TvTimeExtractor(object):
     def save_data(self, data):
         print('INFO Saving data')
 
-        backup_folder_path = os.path.join(self._content['save_path'], 'tv_time_backup')
-        if not os.path.exists(backup_folder_path):
-            os.makedirs(backup_folder_path)
-
         date_time = datetime.datetime.now().strftime('%H.%M.%S_%d.%m.%Y')
         file_name = '%s_%s.txt' % (self._content['username'], date_time)
-        file_path = os.path.join(backup_folder_path, file_name)
+        file_path = os.path.join(self._content['save_path'], file_name)
 
         f = open(file_path, "w+")
 
