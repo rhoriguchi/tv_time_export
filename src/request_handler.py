@@ -1,3 +1,4 @@
+import logging
 import re
 from multiprocessing.dummy import Pool as ThreadPool
 from urllib.parse import urljoin
@@ -12,15 +13,14 @@ NUMBER_OF_THREADS = 4
 
 
 class RequestHandler(object):
-    def __init__(self, username, password, debug=False):
+    def __init__(self, username, password):
         self._session = requests.Session()
         self._username = username
         self._password = password
-        self._debug = debug
         self._profile_id = None
 
     def login(self):
-        print('INFO Login to Tv Time')
+        logging.info('logging in to Tv Time with user %s' % self._username)
 
         url = urljoin(PAGE_URL, 'signin')
         data = {'username': self._username, 'password': self._password}
@@ -35,7 +35,7 @@ class RequestHandler(object):
                 self._profile_id = match.group(1)
 
     def logout(self):
-        print('INFO Logout of Tv Time')
+        logging.info('logging out of Tv Time')
 
         url = urljoin(PAGE_URL, 'signout')
         self._session.get(url)
@@ -43,11 +43,13 @@ class RequestHandler(object):
         self._profile_id = None
 
     def get_data(self):
-        print('INFO Collecting data from Tv Time')
+        logging.info('Collecting data from Tv Time')
+
         ids = self._get_all_show_ids()
 
         pool = ThreadPool(NUMBER_OF_THREADS)
         data = pool.map(self._get_show_data, ids)
+
         return data
 
     def _get_show_data(self, id):
@@ -61,8 +63,7 @@ class RequestHandler(object):
         title_raw = soup.find(id='top-banner').find_all('h1')[0].text
         title = self._remove_extra_spaces(title_raw)
 
-        if self._debug is True:
-            print('DEBUG Collecting data from "%s"' %title)
+        logging.debug('Collecting data from "%s"' % title)
 
         i = 1
         while True:

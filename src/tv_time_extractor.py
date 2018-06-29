@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 
 import yaml
@@ -9,12 +10,14 @@ from src.request_handler import RequestHandler
 class TvTimeExtractor(object):
     def __init__(self):
         self._content = self._read_config()
+        self._set_log_level()
+
+    def _set_log_level(self):
+        if self._content is not None and self._content['debug'] is True:
+            logging.getLogger().setLevel(logging.DEBUG)
 
     def get_data(self):
-        try:
-            request_handler = RequestHandler(self._content['username'], self._content['password'], self._content['debug'])
-        except KeyError:
-            request_handler = RequestHandler(self._content['username'], self._content['password'])
+        request_handler = RequestHandler(self._content['username'], self._content['password'])
 
         try:
             request_handler.login()
@@ -25,7 +28,7 @@ class TvTimeExtractor(object):
         return data
 
     def save_data(self, data):
-        print('INFO Saving data')
+        logging.info('Saving data to %s' % self._content['save_path'])
 
         date_time = datetime.datetime.now().strftime('%d.%m.%Y_%H.%M.%S')
         file_name = '%s_%s.txt' % (self._content['username'], date_time)
@@ -53,8 +56,6 @@ class TvTimeExtractor(object):
 
     @staticmethod
     def _read_config():
-        print('INFO Reading config.yaml')
-
         path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'config.yaml'))
         if not os.path.exists(path):
             raise ValueError('config.yaml does not exist')

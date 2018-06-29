@@ -1,9 +1,13 @@
+import logging
 import sys
-import traceback
 
 from src.tv_time_extractor import TvTimeExtractor
 
 if __name__ == '__main__':
+    logging.basicConfig(filename='tv_time_export.log',
+                        format='%(asctime)s %(levelname)s %(message)s',
+                        level=logging.INFO)
+
     try:
         extractor = TvTimeExtractor()
         data = extractor.get_data()
@@ -11,6 +15,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         sys.exit()
     except Exception as e:
-        print('\nERROR %s' % str(e))
-        traceback.print_exc()
+        logging.exception(e)
         sys.exit()
