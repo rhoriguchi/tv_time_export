@@ -24,7 +24,7 @@ class TvTimeExtractor(object):
     def save_data(self, data):
         print('INFO Saving data')
 
-        date_time = datetime.datetime.now().strftime('%H.%M.%S_%d.%m.%Y')
+        date_time = datetime.datetime.now().strftime('%d.%m.%Y_%H.%M.%S')
         file_name = '%s_%s.txt' % (self._content['username'], date_time)
         file_path = os.path.join(self._content['save_path'], file_name)
 
