@@ -13,7 +13,9 @@ class TvTimeExtractor(object):
         self._set_log_level()
 
     def _set_log_level(self):
-        if self._content is not None and self._content['debug'] is True:
+        if self._content is not None \
+                and 'debug' in self._content \
+                and self._content['debug'] is True:
             logging.getLogger().setLevel(logging.DEBUG)
 
     def get_data(self):
