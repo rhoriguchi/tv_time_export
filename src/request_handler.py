@@ -6,10 +6,13 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-from src.error_handler import ErrorHandler
-
 PAGE_URL = 'https://www.tvtime.com/'
 NUMBER_OF_THREADS = 4
+
+TV_TIME_ERROR_MESSAGES = [
+    'This user does not exist',
+    'You did not give the correct password for this username'
+]
 
 
 class RequestHandler(object):
@@ -26,7 +29,7 @@ class RequestHandler(object):
         data = {'username': self._username, 'password': self._password}
         response = self._session.post(url, data=data)
 
-        ErrorHandler.check_response(response)
+        self._check_response(response)
         soup = BeautifulSoup(response.content, 'html.parser')
 
         for link in soup.find_all('a'):
@@ -92,6 +95,13 @@ class RequestHandler(object):
     @staticmethod
     def _remove_extra_spaces(text):
         return ' '.join(text.split())
+
+    @staticmethod
+    def _check_response(response):
+        content = str(response.content)
+        for error_message in TV_TIME_ERROR_MESSAGES:
+            if error_message in content:
+                raise ValueError('Tv Time returned: %s' % error_message)
 
     def _get_all_show_ids(self):
         url = urljoin(PAGE_URL, ('user/%s/profile' % self._profile_id))
