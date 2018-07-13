@@ -55,10 +55,10 @@ class RequestHandler(object):
 
         return data
 
-    def _get_tv_show_data(self, id):
+    def _get_tv_show_data(self, tv_show_id):
         status = {}
 
-        url = urljoin(PAGE_URL, ('show/%s/' % id))
+        url = urljoin(PAGE_URL, ('show/%s/' % tv_show_id))
         response = self._session.get(url)
 
         soup = BeautifulSoup(response.content, 'html.parser')
