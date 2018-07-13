@@ -63,7 +63,7 @@ class TvTimeExtractor(object):
             raise ValueError('config.yaml does not exist')
 
         with open(path, 'r') as stream:
-            content = yaml.load(stream)
+            content = yaml.safe_load(stream)
 
             if content['username'] is None:
                 raise ValueError('username is empty in config.yaml')
