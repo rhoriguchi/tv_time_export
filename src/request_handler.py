@@ -51,11 +51,11 @@ class RequestHandler(object):
         ids = self._get_all_show_ids()
 
         pool = ThreadPool(NUMBER_OF_THREADS)
-        data = pool.map(self._get_show_data, ids)
+        data = pool.map(self._get_tv_show_data, ids)
 
         return data
 
-    def _get_show_data(self, id):
+    def _get_tv_show_data(self, id):
         status = {}
 
         url = urljoin(PAGE_URL, ('show/%s/' % id))
