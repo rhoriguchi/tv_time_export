@@ -32,6 +32,9 @@ class TvTimeExtractor(object):
     def save_data(self, data):
         logging.info('Saving data to %s' % self._content['save_path'])
 
+        if not os.path.isdir(self._content['save_path']):
+            raise ValueError('save_path dir does not exist')
+
         date_time = datetime.datetime.now().strftime('%d.%m.%Y_%H.%M.%S')
         file_name = '%s_%s.txt' % (self._content['username'], date_time)
         file_path = os.path.join(self._content['save_path'], file_name)
