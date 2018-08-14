@@ -10,9 +10,9 @@ from src.request_handler import RequestHandler
 class TvTimeExtractor(object):
     def __init__(self):
         self._content = self._read_config()
-        self._set_log_level()
+        self.__set_log_level()
 
-    def _set_log_level(self):
+    def __set_log_level(self):
         if self._content is not None \
                 and 'debug' in self._content \
                 and self._content['debug'] is True:

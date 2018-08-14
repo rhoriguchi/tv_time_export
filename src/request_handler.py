@@ -7,6 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 
 PAGE_URL = 'https://www.tvtime.com/'
+# TODO make configurable
 NUMBER_OF_THREADS = 4
 
 TV_TIME_ERROR_MESSAGES = [
@@ -52,6 +53,7 @@ class RequestHandler(object):
 
         pool = ThreadPool(NUMBER_OF_THREADS)
         data = pool.map(self._get_tv_show_data, ids)
+        pool.join()
 
         return data
 
