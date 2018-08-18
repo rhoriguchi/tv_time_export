@@ -1,22 +1,34 @@
 import datetime
 import logging
 import os
+import sys
 
 import yaml
 
-from src.request_handler import RequestHandler
+from src.main.request_handler import RequestHandler
 
 
 class TvTimeExtractor(object):
     def __init__(self):
         self._content = self._read_config()
-        self.__set_log_level()
+        self.__init_logger()
 
-    def __set_log_level(self):
+    def __init_logger(self):
+        level = logging.INFO
         if self._content is not None \
                 and 'debug' in self._content \
                 and self._content['debug'] is True:
-            logging.getLogger().setLevel(logging.DEBUG)
+            level = logging.DEBUG
+
+        file_handler = logging.FileHandler(filename='tv_time_export.log')
+        stdout_handler = logging.StreamHandler(sys.stdout)
+        handlers = [file_handler, stdout_handler]
+
+        logging.basicConfig(
+            level=level,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            handlers=handlers
+        )
 
     def get_data(self):
         request_handler = RequestHandler(self._content['username'], self._content['password'])
