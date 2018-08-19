@@ -92,6 +92,8 @@ class RequestHandler(object):
             status[i] = season_status
             i += 1
 
+        logging.debug('Done collecting data from "%s"' % title)
+
         return title, status
 
     @staticmethod
@@ -106,6 +108,8 @@ class RequestHandler(object):
                 raise ValueError('Tv Time returned: %s' % error_message)
 
     def _get_all_show_ids(self):
+        logging.debug('Collecting all show ids')
+
         url = urljoin(PAGE_URL, ('user/%s/profile' % self._profile_id))
         response = self._session.get(url)
 
