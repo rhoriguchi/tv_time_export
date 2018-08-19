@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 
 PAGE_URL = 'https://www.tvtime.com/'
-NUMBER_OF_THREADS = 8
+NUMBER_OF_SIMULTANEOUS_DOWNLOADS = 8
 
 TV_TIME_ERROR_MESSAGES = [
     'This user does not exist',
@@ -50,7 +50,7 @@ class RequestHandler(object):
 
         ids = self._get_all_show_ids()
 
-        pool = ThreadPool(NUMBER_OF_THREADS)
+        pool = ThreadPool(processes=NUMBER_OF_SIMULTANEOUS_DOWNLOADS)
         data = pool.map(self._get_tv_show_data, ids)
         pool.join()
 
