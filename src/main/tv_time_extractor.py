@@ -11,21 +11,17 @@ from main.request_handler import RequestHandler
 class TvTimeExtractor(object):
     def __init__(self):
         self._content = self._read_config()
-        self.__init_logger()
+        self._init_logger()
 
-    def __init_logger(self):
-        level = logging.INFO
-        if self._content is not None \
-                and 'debug' in self._content \
-                and self._content['debug'] is True:
-            level = logging.DEBUG
-
+    @staticmethod
+    def _init_logger():
         file_handler = logging.FileHandler(filename='tv_time_export.log')
         stdout_handler = logging.StreamHandler(sys.stdout)
+
         handlers = [file_handler, stdout_handler]
 
         logging.basicConfig(
-            level=level,
+            level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
             handlers=handlers
         )
