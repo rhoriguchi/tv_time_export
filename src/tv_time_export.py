@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from src.main.tv_time_extractor import TvTimeExtractor
+from main.tv_time_extractor import TvTimeExtractor
 
 if __name__ == '__main__':
     try:
