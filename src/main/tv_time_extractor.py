@@ -5,7 +5,7 @@ import sys
 
 import yaml
 
-from src.main.request_handler import RequestHandler
+from main.request_handler import RequestHandler
 
 
 class TvTimeExtractor(object):
