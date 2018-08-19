@@ -73,6 +73,8 @@ class TvTimeExtractor(object):
 
     @staticmethod
     def _read_config():
+        logging.info('Reading config.yaml')
+
         path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'config.yaml'))
         if not os.path.exists(path):
             raise ValueError('config.yaml does not exist')
