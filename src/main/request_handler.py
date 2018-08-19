@@ -67,7 +67,7 @@ class RequestHandler(object):
         title_raw = soup.find(id='top-banner').find_all('h1')[0].text
         title = self._remove_extra_spaces(title_raw)
 
-        logging.debug('Collecting data from "%s"' % title)
+        logging.info('Collecting data from "%s"' % title)
 
         i = 1
         while True:
