@@ -16,7 +16,7 @@ class TvTimeExtractor(object):
 
         try:
             request_handler.login()
-            data = request_handler.get_data()
+            data = request_handler.get_data_async()
         finally:
             request_handler.logout()
 

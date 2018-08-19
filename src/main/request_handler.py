@@ -45,7 +45,7 @@ class RequestHandler(object):
 
         self._profile_id = None
 
-    def get_data(self):
+    def get_data_async(self):
         logging.info('Collecting data from Tv Time')
 
         ids = self._get_all_show_ids()
