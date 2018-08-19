@@ -7,7 +7,6 @@ import requests
 from bs4 import BeautifulSoup
 
 PAGE_URL = 'https://www.tvtime.com/'
-# TODO make configurable
 NUMBER_OF_THREADS = 8
 
 TV_TIME_ERROR_MESSAGES = [
