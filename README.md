@@ -6,7 +6,7 @@ It logs in to [Tv Time](https://www.tvtime.com) with the specified user and extr
 
 ## config.yaml
 
-Create `config.yaml` at project root
+Create `config.yaml` src dir
 
 ```yaml
 username: ****
