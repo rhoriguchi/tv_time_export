@@ -26,6 +26,6 @@ if __name__ == '__main__':
         extractor.save_data(data)
     except KeyboardInterrupt:
         sys.exit()
-    except Exception as e:
-        logging.exception(e)
+    except Exception as ex:
+        logging.exception(ex)
         sys.exit()
