@@ -7,6 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 
 PAGE_URL = 'https://www.tvtime.com/'
+# TODO make configurable
 NUMBER_OF_SIMULTANEOUS_DOWNLOADS = 8
 
 TV_TIME_ERROR_MESSAGES = [
@@ -53,6 +54,7 @@ class RequestHandler(object):
         pool = ThreadPool(processes=NUMBER_OF_SIMULTANEOUS_DOWNLOADS)
         data = pool.map(self._get_tv_show_data, ids)
         pool.join()
+        pool.close()
 
         return data
 
