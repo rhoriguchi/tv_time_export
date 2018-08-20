@@ -23,7 +23,6 @@ class TvTimeExtractor(object):
         return data
 
     def save_data(self, data):
-        # TODO this test should happen at the beginning
         if not os.path.isdir(self._content['save_path']):
             raise ValueError('save_path dir does not exist')
 
