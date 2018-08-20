@@ -5,10 +5,10 @@ from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
+from requests.adapters import HTTPAdapter
 
 PAGE_URL = 'https://www.tvtime.com/'
-# TODO make configurable
-NUMBER_OF_SIMULTANEOUS_DOWNLOADS = 8
+NUMBER_OF_SIMULTANEOUS_DOWNLOADS = 20
 
 TV_TIME_ERROR_MESSAGES = [
     'This user does not exist',
@@ -18,10 +18,19 @@ TV_TIME_ERROR_MESSAGES = [
 
 class RequestHandler(object):
     def __init__(self, username, password):
-        self._session = requests.Session()
+        self._session = self._init_session()
         self._username = username
         self._password = password
         self._profile_id = None
+
+    def _init_session(self):
+        session = requests.session()
+        adapter = requests.adapters.HTTPAdapter(pool_connections=NUMBER_OF_SIMULTANEOUS_DOWNLOADS,
+                                                pool_maxsize=NUMBER_OF_SIMULTANEOUS_DOWNLOADS)
+        # TODO figure out why both are needed
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        return session
 
     def login(self):
         logging.info('Logging in to Tv Time with user "{}"'.format(self._username))
@@ -51,10 +60,8 @@ class RequestHandler(object):
 
         ids = self._get_all_show_ids()
 
-        pool = ThreadPool(processes=NUMBER_OF_SIMULTANEOUS_DOWNLOADS)
-        data = pool.map(self._get_tv_show_data, ids)
-        pool.join()
-        pool.close()
+        with ThreadPool(processes=NUMBER_OF_SIMULTANEOUS_DOWNLOADS) as pool:
+            data = pool.map(self._get_tv_show_data, ids)
 
         return data
 
