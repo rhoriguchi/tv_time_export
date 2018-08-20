@@ -24,7 +24,7 @@ class RequestHandler(object):
         self._profile_id = None
 
     def login(self):
-        logging.info('Logging in to Tv Time with user %s' % self._username)
+        logging.info('Logging in to Tv Time with user "{}"'.format(self._username))
 
         url = urljoin(PAGE_URL, 'signin')
         credentials = {'username': self._username, 'password': self._password}
@@ -61,7 +61,7 @@ class RequestHandler(object):
     def _get_tv_show_data(self, tv_show_id):
         status = {}
 
-        url = urljoin(PAGE_URL, ('show/%s/' % tv_show_id))
+        url = urljoin(PAGE_URL, ('show/{}/'.format(tv_show_id)))
         response = self._session.get(url)
 
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -69,13 +69,13 @@ class RequestHandler(object):
         title_raw = soup.find(id='top-banner').find_all('h1')[0].text
         title = self._remove_extra_spaces(title_raw)
 
-        logging.info('Collecting data from "%s"' % title)
+        logging.info('Collecting data from "{}"'.format(title))
 
         i = 1
         while True:
             season_status = {}
 
-            season = soup.find(id='season%s-content' % i)
+            season = soup.find(id='season{}-content'.format(i))
             if season is None:
                 break
 
@@ -104,12 +104,12 @@ class RequestHandler(object):
         content = str(response.content)
         for error_message in TV_TIME_ERROR_MESSAGES:
             if error_message in content:
-                raise ValueError('Tv Time returned: %s' % error_message)
+                raise ValueError('Tv Time returned: {}'.format(error_message))
 
     def _get_all_show_ids(self):
         logging.info('Collecting all show ids')
 
-        url = urljoin(PAGE_URL, ('user/%s/profile' % self._profile_id))
+        url = urljoin(PAGE_URL, ('user/{}/profile'.format(self._profile_id)))
         response = self._session.get(url)
 
         soup = BeautifulSoup(response.content, 'html.parser')

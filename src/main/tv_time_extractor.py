@@ -27,18 +27,17 @@ class TvTimeExtractor(object):
         if not os.path.isdir(self._content['save_path']):
             raise ValueError('save_path dir does not exist')
 
-        logging.info('Saving data to %s' % self._content['save_path'])
+        logging.info('Saving data to {}'.format(self._content['save_path']))
 
-        date_time = datetime.datetime.now().strftime('%d.%m.%Y_%H.%M.%S')
-        file_name = '%s_%s.txt' % (self._content['username'], date_time)
+        file_name = '{}_{:%d.%m.%Y_%H.%M.%S}.txt'.format(self._content['username'], datetime.datetime.now())
         file_path = os.path.join(self._content['save_path'], file_name)
 
         f = open(file_path, "w+")
 
         for show in sorted(data, key=lambda show: show[0]):
             title = show[0]
-            f.write('%s' % title)
-            f.write('\n%s\n' % ('-' * len(title)))
+            f.write('{}'.format(title))
+            f.write('\n{}\n'.format('-' * len(title)))
 
             for season_number, season in show[1].items():
                 for episode_number, episode in season.items():
@@ -47,7 +46,7 @@ class TvTimeExtractor(object):
                     else:
                         state = 'unwatched'
 
-                    f.write('\nS%02dE%02d %s' % (int(season_number), int(episode_number), state))
+                    f.write('\nS{:02d}E{:02d} {}'.format(int(season_number), int(episode_number), state))
 
             f.write('\n\n\n')
 
