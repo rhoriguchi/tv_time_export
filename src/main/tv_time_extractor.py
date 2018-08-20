@@ -11,18 +11,18 @@ class TvTimeExtractor(object):
     def __init__(self):
         self._content = self._read_config()
 
-    def get_data(self):
+    def get_all_tv_show_states(self):
         request_handler = RequestHandler(self._content['username'], self._content['password'])
 
         try:
             request_handler.login()
-            data = request_handler.get_data_async()
+            tv_show_states = request_handler.get_all_tv_show_states()
         finally:
             request_handler.logout()
 
-        return data
+        return tv_show_states
 
-    def save_data(self, data):
+    def save_tv_show_states(self, tv_show_states):
         if not os.path.isdir(self._content['save_path']):
             raise ValueError('save_path dir does not exist')
 
@@ -33,14 +33,16 @@ class TvTimeExtractor(object):
 
         f = open(file_path, "w+")
 
-        for show in sorted(data, key=lambda show: show[0]):
+        for show in sorted(tv_show_states, key=lambda show: show[0]):
             title = show[0]
+            states = show[1]
+
             f.write('{}'.format(title))
             f.write('\n{}\n'.format('-' * len(title)))
 
-            for season_number, season in show[1].items():
-                for episode_number, episode in season.items():
-                    if episode is True:
+            for season_number, season in states.items():
+                for episode_number, state in season.items():
+                    if state is True:
                         state = 'watched'
                     else:
                         state = 'unwatched'

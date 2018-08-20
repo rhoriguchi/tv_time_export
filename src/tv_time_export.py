@@ -22,8 +22,8 @@ if __name__ == '__main__':
 
     try:
         extractor = TvTimeExtractor()
-        data = extractor.get_data()
-        extractor.save_data(data)
+        tv_show_states = extractor.get_all_tv_show_states()
+        extractor.save_tv_show_states(tv_show_states)
     except KeyboardInterrupt:
         sys.exit()
     except Exception as ex:

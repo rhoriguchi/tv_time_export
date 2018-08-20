@@ -5,10 +5,8 @@ from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
-from requests.adapters import HTTPAdapter
 
 PAGE_URL = 'https://www.tvtime.com/'
-NUMBER_OF_SIMULTANEOUS_DOWNLOADS = 20
 
 TV_TIME_ERROR_MESSAGES = [
     'This user does not exist',
@@ -18,19 +16,10 @@ TV_TIME_ERROR_MESSAGES = [
 
 class RequestHandler(object):
     def __init__(self, username, password):
-        self._session = self._init_session()
+        self._session = requests.session()
         self._username = username
         self._password = password
         self._profile_id = None
-
-    def _init_session(self):
-        session = requests.session()
-        adapter = requests.adapters.HTTPAdapter(pool_connections=NUMBER_OF_SIMULTANEOUS_DOWNLOADS,
-                                                pool_maxsize=NUMBER_OF_SIMULTANEOUS_DOWNLOADS)
-        # TODO figure out why both are needed
-        session.mount("http://", adapter)
-        session.mount("https://", adapter)
-        return session
 
     def login(self):
         logging.info('Logging in to Tv Time with user "{}"'.format(self._username))
@@ -55,18 +44,18 @@ class RequestHandler(object):
 
         self._profile_id = None
 
-    def get_data_async(self):
+    def get_all_tv_show_states(self):
         logging.info('Collecting data from Tv Time')
 
-        ids = self._get_all_show_ids()
+        tv_show_ids = self._get_all_tv_show_ids()
 
-        with ThreadPool(processes=NUMBER_OF_SIMULTANEOUS_DOWNLOADS) as pool:
-            data = pool.map(self._get_tv_show_data, ids)
+        with ThreadPool() as pool:
+            tv_show_states = pool.map(self._get_tv_show_states, tv_show_ids)
 
-        return data
+        return tv_show_states
 
-    def _get_tv_show_data(self, tv_show_id):
-        status = {}
+    def _get_tv_show_states(self, tv_show_id):
+        states = {}
 
         url = urljoin(PAGE_URL, ('show/{}/'.format(tv_show_id)))
         response = self._session.get(url)
@@ -80,7 +69,7 @@ class RequestHandler(object):
 
         i = 1
         while True:
-            season_status = {}
+            season_state = {}
 
             season = soup.find(id='season{}-content'.format(i))
             if season is None:
@@ -93,14 +82,14 @@ class RequestHandler(object):
 
                 link = episode.find_all('a', {'class': 'watched-btn'})[0]
                 if 'active' in link.attrs['class']:
-                    season_status[number] = True
+                    season_state[number] = True
                 else:
-                    season_status[number] = False
+                    season_state[number] = False
 
-            status[i] = season_status
+            states[i] = season_state
             i += 1
 
-        return title, status
+        return title, states
 
     @staticmethod
     def _remove_extra_spaces(text):
@@ -113,7 +102,7 @@ class RequestHandler(object):
             if error_message in content:
                 raise ValueError('Tv Time returned: {}'.format(error_message))
 
-    def _get_all_show_ids(self):
+    def _get_all_tv_show_ids(self):
         logging.info('Collecting all show ids')
 
         url = urljoin(PAGE_URL, ('user/{}/profile'.format(self._profile_id)))
@@ -122,9 +111,9 @@ class RequestHandler(object):
         soup = BeautifulSoup(response.content, 'html.parser')
         links = soup.find_all('ul', {'class': 'shows-list'})[1].find_all('a')
 
-        shows = set()
+        tv_show_ids = set()
         for link in links:
             match = re.search('^.*/show/(\d*)', link.get('href'))
-            shows.add(match.group(1))
+            tv_show_ids.add(match.group(1))
 
-        return shows
+        return tv_show_ids
