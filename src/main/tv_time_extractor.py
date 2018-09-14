@@ -31,27 +31,24 @@ class TvTimeExtractor(object):
         file_name = '{}_{:%d.%m.%Y_%H.%M.%S}.txt'.format(self._content['username'], datetime.datetime.now())
         file_path = os.path.join(self._content['save_path'], file_name)
 
-        f = open(file_path, "w+")
+        with open(file_path, 'w+') as file:
+            for show in sorted(tv_show_states, key=lambda show: show[0]):
+                title = show[0]
+                states = show[1]
 
-        for show in sorted(tv_show_states, key=lambda show: show[0]):
-            title = show[0]
-            states = show[1]
+                file.write('{}'.format(title))
+                file.write('\n{}\n'.format('-' * len(title)))
 
-            f.write('{}'.format(title))
-            f.write('\n{}\n'.format('-' * len(title)))
+                for season_number, season in states.items():
+                    for episode_number, state in season.items():
+                        if state is True:
+                            state = 'watched'
+                        else:
+                            state = 'unwatched'
 
-            for season_number, season in states.items():
-                for episode_number, state in season.items():
-                    if state is True:
-                        state = 'watched'
-                    else:
-                        state = 'unwatched'
+                        file.write('\nS{:02d}E{:02d} {}'.format(int(season_number), int(episode_number), state))
 
-                    f.write('\nS{:02d}E{:02d} {}'.format(int(season_number), int(episode_number), state))
-
-            f.write('\n\n\n')
-
-        f.close()
+                file.write('\n\n\n')
 
     @staticmethod
     def _read_config():
