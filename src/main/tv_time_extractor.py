@@ -32,23 +32,40 @@ class TvTimeExtractor(object):
         file_path = os.path.join(self._content['save_path'], file_name)
 
         with open(file_path, 'w+') as file:
+            not_started_shows = []
             for show in sorted(tv_show_states, key=lambda show: show[0]):
-                title = show[0]
-                states = show[1]
+                if self._check_tv_show_started(show):
+                    title = show[0]
+                    states = show[1]
 
-                file.write('{}'.format(title))
-                file.write('\n{}\n'.format('-' * len(title)))
+                    file.write('{}'.format(title))
+                    file.write('\n{}\n'.format('-' * len(title)))
 
-                for season_number, season in states.items():
-                    for episode_number, state in season.items():
-                        if state is True:
-                            state = 'watched'
-                        else:
-                            state = 'unwatched'
+                    for season_number, season in states.items():
+                        for episode_number, state in season.items():
+                            if state is True:
+                                state = 'watched'
+                            else:
+                                state = 'unwatched'
 
-                        file.write('\nS{:02d}E{:02d} {}'.format(int(season_number), int(episode_number), state))
+                            file.write('\nS{:02d}E{:02d} {}'.format(int(season_number), int(episode_number), state))
 
-                file.write('\n\n\n')
+                    file.write('\n\n\n')
+                else:
+                    not_started_shows.append(show)
+
+            file.write('Not started:\n')
+            for show in not_started_shows:
+                file.write(' - {}\n'.format(show[0]))
+
+    @staticmethod
+    def _check_tv_show_started(show):
+        if len(show[1]) > 0:
+            for season_number, season in show[1].items():
+                for episode_number, state in season.items():
+                    if state is True:
+                        return True
+        return False
 
     @staticmethod
     def _read_config():
