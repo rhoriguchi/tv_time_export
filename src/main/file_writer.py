@@ -2,6 +2,8 @@ import datetime
 import logging
 import os
 
+from jinja2 import Template
+
 
 def save_tv_show_states(tv_show_states, save_path, username):
     if not os.path.isdir(save_path):
@@ -9,40 +11,36 @@ def save_tv_show_states(tv_show_states, save_path, username):
 
     logging.info('Saving data to {}'.format(save_path))
 
-    file_name = '{}_{:%d.%m.%Y_%H.%M.%S}.txt'.format(username, datetime.datetime.now())
+    started_shows = []
+    not_started_shows = []
+    for show in tv_show_states:
+        if _check_tv_show_started(show):
+            started_shows.append(show)
+        else:
+            not_started_shows.append(show)
+
+    date = '{:%d.%m.%Y_%H.%M.%S}'.format(datetime.datetime.now())
+    file_name = '{}_{}.html'.format(username, date)
     file_path = os.path.join(save_path, file_name)
+    template_path = os.path.join(os.path.abspath(__file__), '..', 'resources', 'file_writer_template.html')
+
+    with open(template_path, 'r') as file:
+        template = Template(file.read())
 
     with open(file_path, 'w+') as file:
-        not_started_shows = []
-        for show in sorted(tv_show_states, key=lambda show: show[0]):
-            if _check_tv_show_started(show):
-                title = show[0]
-                states = show[1]
-
-                file.write('{}'.format(title))
-                file.write('\n{}\n'.format('-' * len(title)))
-
-                for season_number, season in states.items():
-                    for episode_number, state in season.items():
-                        if state is True:
-                            state = 'watched'
-                        else:
-                            state = 'unwatched'
-
-                        file.write('\nS{:02d}E{:02d} {}'.format(int(season_number), int(episode_number), state))
-
-                file.write('\n\n\n')
-            else:
-                not_started_shows.append(show)
-
-        file.write('Not started:\n')
-        for show in not_started_shows:
-            file.write(' - {}\n'.format(show[0]))
+        render = template.render(
+            date=date,
+            username=username,
+            shows=sorted(tv_show_states, key=lambda show: show['title']),
+            started_shows=sorted(started_shows, key=lambda show: show['title']),
+            not_started_shows=sorted(not_started_shows, key=lambda show: show['title'])
+        )
+        file.write(render)
 
 
 def _check_tv_show_started(show):
-    if len(show[1]) > 0:
-        for season_number, season in show[1].items():
+    if len(show['states']) > 0:
+        for season_number, season in show['states'].items():
             for episode_number, state in season.items():
                 if state is True:
                     return True

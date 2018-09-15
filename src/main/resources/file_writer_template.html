@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>TV Time export for {{ username }} at {{ date }}</title>
+</head>
+<body>
+    <h1>Tv time export for {{ username }} at {{ date }}</h1>
+{%- if started_shows | length > 0 %}
+
+    <h2>Started:</h2>
+    <ul>
+    {%- for show in started_shows %}
+        <li><a href="#{{ show['id'] }}">{{ show['title'] }}</a></li>
+    {%- endfor %}
+    </ul>
+{%- endif %}
+{%- if not_started_shows | length > 0 %}
+
+    <h2>Not started:</h2>
+    <ul>
+    {%- for show in not_started_shows %}
+        <li>{{ show['title'] }}</li>
+    {%- endfor %}
+    </ul>
+{%- endif %}
+{%- for show in shows %}
+
+    <h2>Shows:</h2>
+
+    <h3 id="{{ show['id'] }}">{{ show['title'] }}</h3>
+    <ul>
+    {%- for season_number, season in show['states'].items() %}
+        <li>Season {{ season_number }}
+            <ul>
+            {%- for episode_number, state in season.items() %}
+                <li>Episode {{ '%02d' | format(episode_number | int) }}: {{ state }}</li>
+            {%- endfor %}
+            </ul>
+        </li>
+    {%- endfor %}
+    </ul>
+{%- endfor %}
+</body>
+</html>

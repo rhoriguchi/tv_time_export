@@ -81,6 +81,7 @@ class RequestHandler(object):
                 number = self._remove_extra_spaces(number_raw)
 
                 link = episode.find_all('a', {'class': 'watched-btn'})[0]
+                # TODO use enum for watched and not watched
                 if 'active' in link.attrs['class']:
                     season_state[number] = True
                 else:
@@ -89,7 +90,11 @@ class RequestHandler(object):
             states[i] = season_state
             i += 1
 
-        return title, states
+        return {
+            'id': tv_show_id,
+            'title': title,
+            'states': states
+        }
 
     @staticmethod
     def _remove_extra_spaces(text):
