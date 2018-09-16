@@ -1,0 +1,7 @@
+.watched {
+    color: green;
+}
+
+.not_watched {
+    color: darkgray;
+}

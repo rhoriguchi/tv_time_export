@@ -3,6 +3,12 @@
 <head>
     <meta charset="utf-8" />
     <title>TV Time export for {{ username }} at {{ date }}</title>
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+    <style>
+        {%- include 'style.css' ignore missing %}
+    </style>
 </head>
 <body>
     <h1>Tv time export for {{ username }} at {{ date }}</h1>
@@ -34,7 +40,12 @@
         <li>Season {{ season_number }}
             <ul>
             {%- for episode_number, state in season.items() %}
-                <li>Episode {{ '%02d' | format(episode_number | int) }}: {{ state }}</li>
+                {%- if state %}
+                    {%- set icon_color = 'watched' %}
+                {%- else %}
+                    {%- set icon_color = 'not_watched' %}
+                {%- endif %}
+                <li>{{ '%02d' | format(episode_number | int) }}<i class="fas fa-eye {{ icon_color }}"></i></li>
             {%- endfor %}
             </ul>
         </li>

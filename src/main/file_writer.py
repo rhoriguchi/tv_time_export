@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 
-from jinja2 import Template
+from jinja2 import Environment, PackageLoader, FileSystemLoader
 
 
 def save_tv_show_states(tv_show_states, save_path, username):
@@ -22,12 +22,14 @@ def save_tv_show_states(tv_show_states, save_path, username):
     date = '{:%d.%m.%Y_%H.%M.%S}'.format(datetime.datetime.now())
     file_name = '{}_{}.html'.format(username, date)
     file_path = os.path.join(save_path, file_name)
-    template_path = os.path.join(os.path.abspath(__file__), '..', 'resources', 'file_writer_template.html')
-
-    with open(template_path, 'r') as file:
-        template = Template(file.read())
 
     with open(file_path, 'w+') as file:
+        environment = Environment(
+            loader=FileSystemLoader(os.path.join(os.path.abspath(__file__), '..', 'resources', 'templates')),
+        )
+
+        template = environment.get_template('file_writer.html')
+
         render = template.render(
             date=date,
             username=username,
@@ -35,6 +37,7 @@ def save_tv_show_states(tv_show_states, save_path, username):
             started_shows=sorted(started_shows, key=lambda show: show['title']),
             not_started_shows=sorted(not_started_shows, key=lambda show: show['title'])
         )
+
         file.write(render)
 
 

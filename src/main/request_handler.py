@@ -81,7 +81,6 @@ class RequestHandler(object):
                 number = self._remove_extra_spaces(number_raw)
 
                 link = episode.find_all('a', {'class': 'watched-btn'})[0]
-                # TODO use enum for watched and not watched
                 if 'active' in link.attrs['class']:
                     season_state[number] = True
                 else:
