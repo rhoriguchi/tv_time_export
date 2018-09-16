@@ -36,16 +36,16 @@
 
     <h3 id="{{ show['id'] }}">{{ show['title'] }}</h3>
     <ul>
-    {%- for season_number, season in show['states'].items() %}
+    {%- for season_number, season_data in show['data'].items() %}
         <li>Season {{ season_number }}
             <ul>
-            {%- for episode_number, state in season.items() %}
-                {%- if state %}
+            {%- for episode_number, episode_data in season_data.items() %}
+                {%- if episode_data['state'] %}
                     {%- set icon_color = 'watched' %}
                 {%- else %}
                     {%- set icon_color = 'not_watched' %}
                 {%- endif %}
-                <li>{{ '%02d' | format(episode_number | int) }}<i class="fas fa-eye {{ icon_color }}"></i></li>
+                <li>{{ '%02d' | format(episode_number | int) }} {{ episode_data['title'] }}<i class="fas fa-eye {{ icon_color }}"></i></li>
             {%- endfor %}
             </ul>
         </li>

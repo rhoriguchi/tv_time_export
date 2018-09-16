@@ -55,7 +55,7 @@ class RequestHandler(object):
         return tv_show_states
 
     def _get_tv_show_states(self, tv_show_id):
-        states = {}
+        season_data = {}
 
         url = urljoin(PAGE_URL, ('show/{}/'.format(tv_show_id)))
         response = self._session.get(url)
@@ -69,7 +69,7 @@ class RequestHandler(object):
 
         i = 1
         while True:
-            season_state = {}
+            episode_data = {}
 
             season = soup.find(id='season{}-content'.format(i))
             if season is None:
@@ -82,17 +82,25 @@ class RequestHandler(object):
 
                 link = episode.find_all('a', {'class': 'watched-btn'})[0]
                 if 'active' in link.attrs['class']:
-                    season_state[number] = True
+                    episode_state = True
                 else:
-                    season_state[number] = False
+                    episode_state = False
 
-            states[i] = season_state
+                episode_title_raw = episode.find_all('span', {'class': 'episode-name'})[0].text
+                episode_title = self._remove_extra_spaces(episode_title_raw.replace('\n', ''))
+
+                episode_data[number] = {
+                    'state': episode_state,
+                    'title': episode_title
+                }
+
+            season_data[i] = episode_data
             i += 1
 
         return {
             'id': tv_show_id,
             'title': title,
-            'states': states
+            'data': season_data
         }
 
     @staticmethod
