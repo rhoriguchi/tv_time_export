@@ -43,7 +43,9 @@ def save_tv_show_states(tv_show_states, save_path, username):
 
 def _check_tv_show_started(show):
     if len(show['data']) > 0:
+        # TODO unused var season_number
         for season_number, season_data in show['data'].items():
+            # TODO unused var episode_number
             for episode_number, episode_data in season_data.items():
                 if episode_data['state'] is True:
                     return True
