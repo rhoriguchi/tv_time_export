@@ -14,7 +14,7 @@
     <h1>Tv time export for {{ username }} at {{ date }}</h1>
 {%- if started_shows | length > 0 %}
 
-    <h2>Started:</h2>
+    <h2>Started</h2>
     <ul>
     {%- for show in started_shows %}
         <li><a href="#{{ show['id'] }}">{{ show['title'] }}</a></li>
@@ -23,7 +23,7 @@
 {%- endif %}
 {%- if not_started_shows | length > 0 %}
 
-    <h2>Not started:</h2>
+    <h2>Not started</h2>
     <ul>
     {%- for show in not_started_shows %}
         <li>{{ show['title'] }}</li>
@@ -31,26 +31,34 @@
     </ul>
 {%- endif %}
 {%- if started_shows | length > 0 %}
-    <h2>Shows:</h2>
+    <h2>Shows</h2>
 
 {%- for show in started_shows %}
     <h3 id="{{ show['id'] }}">{{ show['title'] }}</h3>
-    <ul>
-    {%- for season_number, season_data in show['data'].items() %}
-        <li>Season {{ season_number }}
-            <ul>
-            {%- for episode_number, episode_data in season_data.items() %}
-                {%- if episode_data['state'] %}
-                    {%- set icon_color = 'watched' %}
-                {%- else %}
-                    {%- set icon_color = 'not_watched' %}
-                {%- endif %}
-                <li>{{ '%02d' | format(episode_number | int) }} {{ episode_data['title'] }}<i class="fas fa-eye {{ icon_color }}"></i></li>
-            {%- endfor %}
-            </ul>
-        </li>
+
+{%- for season_number, season_data in show['data'].items() %}
+    <table>
+        <thead>
+            <tr>
+                <th colspan="2">Season {{ season_number }}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {%- for episode_number, episode_data in season_data.items() %}
+            {%- if episode_data['state'] %}
+                {%- set state = 'watched' %}
+            {%- else %}
+                {%- set state = 'not_watched' %}
+            {%- endif %}
+            <tr>
+                <td>{{ '%02d' | format(episode_number | int) }}</td>
+                <td>{{ episode_data['title'] }}</td>
+                <td><i class="fas fa-eye {{ state }}"></i></td>
+            </tr>
+        {%- endfor %}
+        </tbody>
+    </table>
     {%- endfor %}
-    </ul>
 {%- endfor %}
 {%- endif %}
 </body>
