@@ -30,10 +30,10 @@
     {%- endfor %}
     </ul>
 {%- endif %}
-{%- for show in shows %}
-
+{%- if started_shows | length > 0 %}
     <h2>Shows:</h2>
 
+{%- for show in started_shows %}
     <h3 id="{{ show['id'] }}">{{ show['title'] }}</h3>
     <ul>
     {%- for season_number, season_data in show['data'].items() %}
@@ -52,5 +52,6 @@
     {%- endfor %}
     </ul>
 {%- endfor %}
+{%- endif %}
 </body>
 </html>
