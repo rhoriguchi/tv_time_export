@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader
 
 
 def save_tv_show_states(tv_show_states, save_path, username):
@@ -26,7 +26,7 @@ def save_tv_show_states(tv_show_states, save_path, username):
     with open(file_path, 'w+', errors='ignore') as file:
         environment = Environment(
             loader=FileSystemLoader(os.path.join(os.path.abspath(__file__), '..', 'resources', 'templates')),
-            autoescape=select_autoescape(['html', 'xml'])
+            autoescape=True
         )
 
         template = environment.get_template('file_writer.html')
@@ -43,10 +43,8 @@ def save_tv_show_states(tv_show_states, save_path, username):
 
 def _check_tv_show_started(show):
     if len(show['data']) > 0:
-        # TODO unused var season_number
-        for season_number, season_data in show['data'].items():
-            # TODO unused var episode_number
-            for episode_number, episode_data in season_data.items():
+        for season_data in show['data'].values():
+            for episode_data in season_data.values():
                 if episode_data['state'] is True:
                     return True
     return False
