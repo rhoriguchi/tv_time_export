@@ -19,8 +19,8 @@ def save_tv_show_states(tv_show_states, save_path, username):
         else:
             not_started_shows.append(show)
 
-    date = '{:%d.%m.%Y_%H.%M.%S}'.format(datetime.datetime.now())
-    file_name = '{}_{}.html'.format(username, date)
+    now = datetime.datetime.now()
+    file_name = '{}_{:%d.%m.%Y_%H.%M.%S}.html'.format(username, now)
     file_path = os.path.join(save_path, file_name)
 
     with open(file_path, 'w+', errors='ignore') as file:
@@ -32,7 +32,7 @@ def save_tv_show_states(tv_show_states, save_path, username):
         template = environment.get_template('file_writer.html')
 
         render = template.render(
-            date=date,
+            date='{:%H:%M:%S %d.%m.%Y}'.format(now),
             username=username,
             started_shows=sorted(started_shows, key=lambda show: show['title']),
             not_started_shows=sorted(not_started_shows, key=lambda show: show['title'])

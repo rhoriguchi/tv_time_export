@@ -1,7 +1,38 @@
 .watched {
-    color: green;
+    color: #7fda63;
 }
 
 .not_watched {
-    color: darkgray;
+    color: black;
+}
+
+table {
+    border-collapse: collapse;
+    width: 500px;
+}
+
+thead th {
+    text-align: left;
+    padding-left: 3px;
+}
+
+tbody tr:nth-of-type(2n) {
+    background-color: #EEE;
+}
+
+tbody td:nth-child(1) {
+    width: 20px;
+    text-align: center;
+}
+
+tbody td:nth-child(2) {
+    /*TODO bad solution*/
+    max-width: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+tbody td:nth-child(3) {
+    width: 20px;
 }
