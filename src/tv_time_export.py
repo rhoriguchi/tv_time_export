@@ -1,11 +1,13 @@
 import logging
+import os
 import sys
 
 from main.tv_time_extractor import TvTimeExtractor
 
 
 def _init_logger():
-    file_handler = logging.FileHandler(filename='tv_time_export.log')
+    log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tv_time_export.log')
+    file_handler = logging.FileHandler(filename=log_path)
     stdout_handler = logging.StreamHandler(sys.stdout)
 
     handlers = [file_handler, stdout_handler]
