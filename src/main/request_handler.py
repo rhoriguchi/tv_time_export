@@ -89,7 +89,7 @@ class RequestHandler(object):
                 episode_title_raw = episode.find_all('span', {'class': 'episode-name'})[0].text
                 episode_title = self._remove_extra_spaces(episode_title_raw.replace('\n', ''))
 
-                if episode_state and episode_title:
+                if episode_state or episode_title:
                     episode_data[number] = {
                         'state': episode_state,
                         'title': episode_title
