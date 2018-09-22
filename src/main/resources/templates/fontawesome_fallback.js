@@ -15,15 +15,11 @@ function noConnectionExists() {
     let notWatched = document.getElementsByClassName("not_watched");
 
     for (let i = 0; i < watched.length; i++) {
-        let parent = watched[i].parentNode;
-        parent.removeChild(parent.childNodes[0]);
-        parent.appendChild(pWatched.cloneNode(true));
+        watched[i].replaceWith(pWatched.cloneNode(true));
     }
 
     for (let i = 0; i < notWatched.length; i++) {
-        let parent = notWatched[i].parentNode;
-        parent.removeChild(parent.childNodes[0]);
-        parent.appendChild(pNotWatched.cloneNode(true));
+        notWatched[i].replaceWith(pNotWatched.cloneNode(true));
     }
 }
 
