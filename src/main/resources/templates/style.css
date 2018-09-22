@@ -3,7 +3,7 @@
 }
 
 .not_watched {
-    color: black;
+    color: #da637f;
 }
 
 table {
@@ -33,6 +33,7 @@ tbody td:nth-child(2) {
     text-overflow: ellipsis;
 }
 
+/*TODO not watched p element has strange styling and will be on 2 lines*/
 tbody td:nth-child(3) {
     width: 20px;
 }
