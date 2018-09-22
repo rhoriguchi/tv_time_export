@@ -8,7 +8,7 @@
 
 table {
     border-collapse: collapse;
-    width: 500px;
+    width: 600px;
 }
 
 thead th {
@@ -35,5 +35,7 @@ tbody td:nth-child(2) {
 
 /*TODO not watched p element has strange styling and will be on 2 lines*/
 tbody td:nth-child(3) {
-    width: 20px;
+    width: 82px;
+    padding-right: 5px;
+    text-align: right;
 }
