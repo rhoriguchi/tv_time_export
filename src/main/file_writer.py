@@ -7,9 +7,9 @@ from jinja2 import Environment, FileSystemLoader
 
 def save_tv_show_states(tv_show_states, save_path, username):
     if not os.path.isdir(save_path):
-        raise ValueError('save_path \'{}\' does not exist'.format(save_path))
+        raise ValueError('save_path "{}" does not exist'.format(save_path))
 
-    logging.info('Saving data to {}'.format(save_path))
+    logging.info('Saving data to "{}"'.format(save_path))
 
     started_shows = []
     not_started_shows = []
