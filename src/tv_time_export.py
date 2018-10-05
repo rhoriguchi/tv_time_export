@@ -6,17 +6,19 @@ from main.tv_time_extractor import TvTimeExtractor
 
 
 def _init_logger():
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
     log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tv_time_export.log')
     file_handler = logging.FileHandler(filename=log_path)
-    stdout_handler = logging.StreamHandler(sys.stdout)
+    file_handler.set_name('file')
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    logger.addHandler(file_handler)
 
-    handlers = [file_handler, stdout_handler]
-
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=handlers
-    )
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.set_name('console')
+    console_handler.setFormatter(logging.Formatter('%(message)s'))
+    logger.addHandler(console_handler)
 
 
 if __name__ == '__main__':
