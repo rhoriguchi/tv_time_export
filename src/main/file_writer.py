@@ -25,7 +25,7 @@ def save_tv_show_states(tv_show_states, save_path, username):
 
     with open(file_path, 'w+', errors='ignore') as file:
         environment = Environment(
-            loader=FileSystemLoader(os.path.abspath(os.path.join(os.path.abspath(__file__), '..', '..', 'resources', 'templates'))),
+            loader=FileSystemLoader(os.path.abspath(os.path.join(__file__, '..', '..', 'resources', 'templates'))),
             autoescape=True
         )
 
