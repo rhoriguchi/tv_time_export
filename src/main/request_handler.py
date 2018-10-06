@@ -4,6 +4,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 from urllib.parse import urljoin
 
 import requests
+import tqdm.autonotebook
 from bs4 import BeautifulSoup
 
 PAGE_URL = 'https://www.tvtime.com/'
@@ -50,7 +51,8 @@ class RequestHandler(object):
         tv_show_ids = self._get_all_tv_show_ids()
 
         with ThreadPool() as pool:
-            tv_show_states = pool.map(self._get_tv_show_states, tv_show_ids)
+            tv_show_states = list(
+                tqdm.tqdm(pool.imap(self._get_tv_show_states, tv_show_ids), total=len(tv_show_ids), unit=" shows"))
 
         return tv_show_states
 
@@ -64,8 +66,6 @@ class RequestHandler(object):
 
         title_raw = soup.find(id='top-banner').find_all('h1')[0].text
         title = self._remove_extra_spaces(title_raw)
-
-        logging.info('Collecting data from "{}"'.format(title))
 
         i = 1
         while True:
