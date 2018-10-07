@@ -4,7 +4,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 from urllib.parse import urljoin
 
 import requests
-import tqdm.autonotebook
+import tqdm
 from bs4 import BeautifulSoup
 
 PAGE_URL = 'https://www.tvtime.com/'
