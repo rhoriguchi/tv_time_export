@@ -52,7 +52,7 @@ class RequestHandler(object):
 
         with ThreadPool() as pool:
             tv_show_states = list(
-                tqdm.tqdm(pool.imap(self._get_tv_show_states, tv_show_ids), total=len(tv_show_ids), unit=" shows"))
+                tqdm.tqdm(pool.imap(self._get_tv_show_states, tv_show_ids), total=len(tv_show_ids), unit="shows"))
 
         return tv_show_states
 
