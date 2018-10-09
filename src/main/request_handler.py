@@ -26,8 +26,8 @@ class RequestHandler(object):
         logging.info('Logging in to Tv Time with user "{}"'.format(self._username))
 
         url = urljoin(PAGE_URL, 'signin')
-        credentials = {'username': self._username, 'password': self._password}
-        response = self._session.post(url, data=credentials)
+        data = {'username': self._username, 'password': self._password}
+        response = self._session.post(url, data=data)
 
         self._check_response(response)
         soup = BeautifulSoup(response.content, 'html.parser')
