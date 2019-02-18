@@ -1,15 +1,24 @@
 import logging
 import os
+import threading
 
 import yaml
 
 from main import file_writer
 from main.request_handler import RequestHandler
 
+DEFAULT_INTERVAL = 3600
+
 
 class TvTimeExtractor(object):
     def __init__(self):
         self._content = self._read_config()
+
+    def start(self):
+        threading.Timer(self._content['interval'], self.start).start()
+
+        tv_show_states = self.get_all_tv_show_states()
+        self.save_tv_show_states(tv_show_states)
 
     def get_all_tv_show_states(self):
         request_handler = RequestHandler(self._content['username'], self._content['password'])
@@ -36,13 +45,16 @@ class TvTimeExtractor(object):
         with open(path, 'r') as stream:
             content = yaml.safe_load(stream)
 
-            if content['username'] is None:
+            if "username" not in content or content['username'] is None:
                 raise ValueError('username is empty in config.yaml')
 
-            if content['password'] is None:
+            if "password" not in content or content['password'] is None:
                 raise ValueError('password is empty in config.yaml')
 
-            if content['save_path'] is None:
+            if "save_path" not in content or content['save_path'] is None:
                 raise ValueError('save_path is empty in config.yaml')
+
+            if "interval" not in content or content['interval'] is None:
+                content['interval'] = DEFAULT_INTERVAL
 
             return content
