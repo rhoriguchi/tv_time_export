@@ -1,6 +1,6 @@
 # Application
 config.yaml
-tv_time_backup/
+exports/
 
 # Jetbrains
 .idea/

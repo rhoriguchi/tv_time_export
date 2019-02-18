@@ -11,6 +11,6 @@ Create `config.yaml` src dir
 ```yaml
 username: ****
 password: ****
-sava_path: ****
+sava_path: /tmp/export
 interval: 3600
 ```

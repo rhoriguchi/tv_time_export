@@ -52,7 +52,9 @@ class TvTimeExtractor(object):
                 raise ValueError('password is empty in config.yaml')
 
             if "save_path" not in content or content['save_path'] is None:
-                raise ValueError('save_path is empty in config.yaml')
+                content['save_path'] = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'exports'))
+                logging.info('Creating default folder {} if not existing'.format(content['save_path']))
+                os.makedirs(content['save_path'], exist_ok=True)
 
             if "interval" not in content or content['interval'] is None:
                 content['interval'] = DEFAULT_INTERVAL
