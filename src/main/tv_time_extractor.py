@@ -7,7 +7,7 @@ import yaml
 from main import file_writer
 from main.request_handler import RequestHandler
 
-DEFAULT_INTERVAL = 3600
+DEFAULT_INTERVAL = 3600 * 24
 
 
 class TvTimeExtractor(object):
