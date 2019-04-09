@@ -12,5 +12,4 @@ Create `config.yaml` src dir
 username: ****
 password: ****
 sava_path: /tmp/export
-interval: 3600
 ```

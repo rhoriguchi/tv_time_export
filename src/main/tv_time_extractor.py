@@ -1,24 +1,14 @@
 import logging
 import os
-import threading
 
 import yaml
 
 from main import file_writer
 from main.request_handler import RequestHandler
 
-DEFAULT_INTERVAL = 3600 * 24
-
-
 class TvTimeExtractor(object):
     def __init__(self):
         self._content = self._read_config()
-
-    def start(self):
-        threading.Timer(self._content['interval'], self.start).start()
-
-        tv_show_states = self.get_all_tv_show_states()
-        self.save_tv_show_states(tv_show_states)
 
     def get_all_tv_show_states(self):
         request_handler = RequestHandler(self._content['username'], self._content['password'])
@@ -55,8 +45,5 @@ class TvTimeExtractor(object):
                 content['save_path'] = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'exports'))
                 logging.info('Creating default folder {} if not existing'.format(content['save_path']))
                 os.makedirs(content['save_path'], exist_ok=True)
-
-            if "interval" not in content or content['interval'] is None:
-                content['interval'] = DEFAULT_INTERVAL
 
             return content

@@ -20,7 +20,9 @@ if __name__ == '__main__':
     _init_logger()
 
     try:
-        TvTimeExtractor().start()
+        extractor = TvTimeExtractor()
+        tv_show_states = extractor.get_all_tv_show_states()
+        extractor.save_tv_show_states(tv_show_states)
     except KeyboardInterrupt:
         sys.exit()
     except Exception as ex:
