@@ -110,8 +110,17 @@ class RequestHandler(object):
     def _remove_extra_spaces(text):
         return ' '.join(text.split())
 
+    def _check_response(self, response):
+        self._check_response_status_code(response)
+        self._check_response_content(response)
+
     @staticmethod
-    def _check_response(response):
+    def _check_response_status_code(response):
+        if not response.ok:
+            raise ValueError('Tv Time returned status code {} {}'.format(response.status_code, response.reason))
+
+    @staticmethod
+    def _check_response_content(response):
         content = str(response.content)
         for error_message in TV_TIME_ERROR_MESSAGES:
             if error_message in content:
