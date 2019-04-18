@@ -6,6 +6,7 @@ import yaml
 from main import file_writer
 from main.request_handler import RequestHandler
 
+
 class TvTimeExtractor(object):
     def __init__(self):
         self._content = self._read_config()
@@ -42,7 +43,8 @@ class TvTimeExtractor(object):
                 raise ValueError('password is empty in config.yaml')
 
             if "save_path" not in content or content['save_path'] is None:
-                content['save_path'] = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'exports'))
+                content['save_path'] = os.path.abspath(
+                    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'exports'))
                 logging.info('Creating default folder {} if not existing'.format(content['save_path']))
                 os.makedirs(content['save_path'], exist_ok=True)
 
