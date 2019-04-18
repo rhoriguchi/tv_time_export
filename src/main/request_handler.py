@@ -17,10 +17,16 @@ TV_TIME_ERROR_MESSAGES = [
 
 class RequestHandler(object):
     def __init__(self, username, password):
-        self._session = requests.session()
+        self._session = self._get_session()
         self._username = username
         self._password = password
         self._profile_id = None
+
+    @staticmethod
+    def _get_session():
+        session = requests.session()
+        session.headers.update({'User-agent': 'Mozilla/5.0'})
+        return session
 
     def login(self):
         logging.info('Logging in to Tv Time with user "{}"'.format(self._username))
