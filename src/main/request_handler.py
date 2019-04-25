@@ -4,8 +4,9 @@ from multiprocessing.dummy import Pool as ThreadPool
 from urllib.parse import urljoin
 
 import requests
-import tqdm
 from bs4 import BeautifulSoup
+
+from main.atomic_counter import AtomicCounter
 
 PAGE_URL = 'https://www.tvtime.com/'
 
@@ -14,6 +15,8 @@ TV_TIME_ERROR_MESSAGES = [
     'You did not give the correct password for this username'
 ]
 
+logger = logging.getLogger(__name__)
+
 
 class RequestHandler(object):
     def __init__(self, username, password):
@@ -21,6 +24,7 @@ class RequestHandler(object):
         self._username = username
         self._password = password
         self._profile_id = None
+        self._counter = AtomicCounter()
 
     @staticmethod
     def _get_session():
@@ -29,7 +33,7 @@ class RequestHandler(object):
         return session
 
     def login(self):
-        logging.info('Logging in to Tv Time with user "{}"'.format(self._username))
+        logger.info('Logging in to Tv Time with user "{}"'.format(self._username))
 
         url = urljoin(PAGE_URL, 'signin')
         data = {'username': self._username, 'password': self._password}
@@ -44,7 +48,7 @@ class RequestHandler(object):
                 self._profile_id = match.group(1)
 
     def logout(self):
-        logging.info('Logging out of Tv Time')
+        logger.info('Logging out of Tv Time')
 
         url = urljoin(PAGE_URL, 'signout')
         self._session.get(url)
@@ -52,13 +56,13 @@ class RequestHandler(object):
         self._profile_id = None
 
     def get_all_tv_show_states(self):
-        logging.info('Collecting data from Tv Time')
+        logger.info('Collecting data from Tv Time')
 
         tv_show_ids = self._get_all_tv_show_ids()
+        self._counter.init(len(tv_show_ids))
 
         with ThreadPool() as pool:
-            tv_show_states = list(
-                tqdm.tqdm(pool.imap(self._get_tv_show_states, tv_show_ids), total=len(tv_show_ids), unit="shows"))
+            tv_show_states = list(pool.imap(self._get_tv_show_states, tv_show_ids))
 
         return tv_show_states
 
@@ -72,6 +76,8 @@ class RequestHandler(object):
 
         title_raw = soup.find(id='top-banner').find_all('h1')[0].text
         title = self._remove_extra_spaces(title_raw)
+
+        logger.info('{:0=3d}-{:0=3d} < Collection state for {}'.format(self._counter.get_count(), self._counter.initial, title))
 
         i = 1
         while True:
@@ -106,6 +112,9 @@ class RequestHandler(object):
 
             i += 1
 
+        logger.info(
+            '{:0=3d}-{:0=3d} < Done collecting state for {}'.format(self._counter.decrement(), self._counter.initial, title))
+
         return {
             'id': tv_show_id,
             'title': title,
@@ -133,7 +142,7 @@ class RequestHandler(object):
                 raise ValueError('Tv Time returned: {}'.format(error_message))
 
     def _get_all_tv_show_ids(self):
-        logging.info('Collecting all show ids')
+        logger.info('Collecting all show ids')
 
         url = urljoin(PAGE_URL, ('user/{}/profile'.format(self._profile_id)))
         response = self._session.get(url)
@@ -145,5 +154,7 @@ class RequestHandler(object):
         for link in links:
             match = re.search('^.*/show/(\d*)', link.get('href'))
             tv_show_ids.add(match.group(1))
+
+        logger.info('Collected {} show ids'.format(len(tv_show_ids)))
 
         return tv_show_ids
