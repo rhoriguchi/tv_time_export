@@ -77,11 +77,17 @@ class RequestHandler(object):
         title_raw = soup.find(id='top-banner').find_all('h1')[0].text
         title = self._remove_extra_spaces(title_raw)
 
-        logger.info('{:0=3d}-{:0=3d} < Collection state for {}'.format(self._counter.get_count(), self._counter.initial, title))
+        logger.info('{:0=3d}-{:0=3d} < Collection state for "{}"'.format(self._counter.get_count(), self._counter.initial, title))
+
+        episode_count = 0
+        watched_episode_count = 0
 
         i = 1
         while True:
             episode_data = {}
+
+            season_episode_count = 0
+            season_watched_episode_count = 0
 
             season = soup.find(id='season{}-content'.format(i))
             if season is None:
@@ -89,12 +95,17 @@ class RequestHandler(object):
 
             episodes = season.find_all('li', {'class': 'episode-wrapper'})
             for episode in episodes:
+                episode_count += 1
+                season_episode_count += 1
+
                 number_raw = episode.find_all('span', {'class': 'episode-nb-label'})[0].text
                 number = self._remove_extra_spaces(number_raw)
 
                 link = episode.find_all('a', {'class': 'watched-btn'})[0]
                 if 'active' in link.attrs['class']:
                     episode_state = True
+                    watched_episode_count += 1
+                    season_watched_episode_count += 1
                 else:
                     episode_state = False
 
@@ -108,17 +119,23 @@ class RequestHandler(object):
                     }
 
             if episode_data:
-                season_data[i] = episode_data
+                season_data[i] = {
+                    'data': episode_data,
+                    'episode_count': season_episode_count,
+                    'watched_episode_count': season_watched_episode_count
+                }
 
             i += 1
 
         logger.info(
-            '{:0=3d}-{:0=3d} < Done collecting state for {}'.format(self._counter.decrement(), self._counter.initial, title))
+            '{:0=3d}-{:0=3d} < Done collecting state for "{}"'.format(self._counter.decrement(), self._counter.initial, title))
 
         return {
             'id': tv_show_id,
             'title': title,
-            'data': season_data
+            'data': season_data,
+            'episode_count': episode_count,
+            'watched_episode_count': watched_episode_count
         }
 
     @staticmethod
@@ -132,7 +149,7 @@ class RequestHandler(object):
     @staticmethod
     def _check_response_status_code(response):
         if not response.ok:
-            raise ValueError('Tv Time returned status code {} {}'.format(response.status_code, response.reason))
+            raise ValueError('Tv Time returned status code {} with reason: {}'.format(response.status_code, response.reason))
 
     @staticmethod
     def _check_response_content(response):
