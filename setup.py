@@ -9,6 +9,11 @@ setup(
     author='Ryan Horiguchi',
     author_email='ryan.horiguchi@gmail.com',
     dependency_links=[],
+    entry_points={
+        'console_scripts': [
+            'command-name = tv_time_export:main',
+        ],
+    },
     install_requires=requires,
     license='unlicense',
     name='tv_time_export',

@@ -16,7 +16,7 @@ def _init_logger():
     logging.basicConfig(level=logging.INFO, handlers=[file_handler, console_handler])
 
 
-if __name__ == '__main__':
+def main():
     _init_logger()
 
     try:
@@ -28,3 +28,7 @@ if __name__ == '__main__':
     except Exception as ex:
         logging.exception(ex)
         sys.exit()
+
+
+if __name__ == '__main__':
+    main()
