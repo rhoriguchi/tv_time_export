@@ -1,6 +1,6 @@
 # Application
-config.yaml
-exports/
+*config.yaml
+*exports/
 
 # Jetbrains
 .idea/

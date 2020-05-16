@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-from main.atomic_counter import AtomicCounter
+from tv_time_export.atomic_counter import AtomicCounter
 
 PAGE_URL = 'https://www.tvtime.com/'
 
@@ -77,7 +77,9 @@ class RequestHandler(object):
         title_raw = soup.find(id='top-banner').find_all('h1')[0].text
         title = self._remove_extra_spaces(title_raw)
 
-        logger.info('{:0=3d}-{:0=3d} < Collection state for "{}"'.format(self._counter.get_count(), self._counter.initial, title))
+        logger.info(
+            '{:0=3d}-{:0=3d} < Collection state for "{}"'.format(self._counter.get_count(), self._counter.initial,
+                                                                 title))
 
         episode_count = 0
         watched_episode_count = 0
@@ -114,7 +116,7 @@ class RequestHandler(object):
 
                 if episode_state or episode_title:
                     episode_data[number] = {
-                        'state': episode_state,
+                        'watched': episode_state,
                         'title': episode_title
                     }
 
@@ -128,7 +130,8 @@ class RequestHandler(object):
             i += 1
 
         logger.info(
-            '{:0=3d}-{:0=3d} < Done collecting state for "{}"'.format(self._counter.decrement(), self._counter.initial, title))
+            '{:0=3d}-{:0=3d} < Done collecting state for "{}"'.format(self._counter.decrement(), self._counter.initial,
+                                                                      title))
 
         return {
             'id': tv_show_id,
@@ -149,7 +152,8 @@ class RequestHandler(object):
     @staticmethod
     def _check_response_status_code(response):
         if not response.ok:
-            raise ValueError('Tv Time returned status code {} with reason: {}'.format(response.status_code, response.reason))
+            raise ValueError(
+                'Tv Time returned status code {} with reason: {}'.format(response.status_code, response.reason))
 
     @staticmethod
     def _check_response_content(response):

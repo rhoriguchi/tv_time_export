@@ -1,10 +1,11 @@
 import logging
 import os
+import sys
 
 import yaml
 
-from main import file_writer
-from main.request_handler import RequestHandler
+from tv_time_export import file_writer
+from tv_time_export.request_handler import RequestHandler
 
 logger = logging.getLogger(__name__)
 
@@ -28,14 +29,26 @@ class TvTimeExtractor(object):
         file_writer.save_tv_show_states(tv_show_states, self._content['save_path'], self._content['username'])
 
     @staticmethod
-    def _read_config():
-        logger.info('Reading config.yaml')
+    def _get_config_path():
+        argv = sys.argv
 
-        path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config.yaml'))
-        if not os.path.exists(path):
-            raise ValueError('config.yaml does not exist')
+        if len(argv) >= 2:
+            if os.path.isabs(argv[1]):
+                return argv[1]
+            else:
+                return os.path.join(os.getcwd(), argv[1])
+        else:
+            return os.path.join(os.getcwd(), 'config.yaml')
 
-        with open(path, 'r') as stream:
+    def _read_config(self):
+        config_path = self._get_config_path()
+
+        if not os.path.exists(config_path):
+            raise ValueError(f'Config path \'{config_path}\' does not exist')
+
+        logger.info(f'Reading {config_path}')
+
+        with open(config_path, 'r') as stream:
             content = yaml.safe_load(stream)
 
             if "username" not in content or content['username'] is None:
@@ -45,9 +58,12 @@ class TvTimeExtractor(object):
                 raise ValueError('password is empty in config.yaml')
 
             if "save_path" not in content or content['save_path'] is None:
-                content['save_path'] = os.path.abspath(
-                    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'exports'))
-                logger.info('Creating default folder {} if not existing'.format(content['save_path']))
+                content['save_path'] = os.path.join(os.getcwd(), 'exports')
+
+                logger.info(f'Creating dir \'{content["save_path"]}\'')
                 os.makedirs(content['save_path'], exist_ok=True)
+            else:
+                if not os.path.exists(content['save_path']):
+                    raise ValueError(f'Config path \'{content["save_path"]}\' does not exist')
 
             return content

@@ -11,12 +11,15 @@ setup(
     dependency_links=[],
     entry_points={
         'console_scripts': [
-            'command-name = tv_time_export:main',
+            'tv_time_export = tv_time_export.main:main',
         ],
     },
     install_requires=requires,
-    license='unlicense',
+    license='MIT',
     name='tv_time_export',
+    package_dir={
+        'lib': 'tv_time_export'
+    },
     packages=find_packages(),
     python_requires='>=3.7',
     url='git@github.com:rhoriguchi/tv_time_export.git',

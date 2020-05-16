@@ -1,14 +1,8 @@
 beautifulsoup4==4.9.0
 certifi==2020.4.5.1
 chardet==3.0.4
-htmlmin==0.1.12
 idna==2.9
-Jinja2==2.11.2
-MarkupSafe==1.1.1
-python-utils==2.4.0
 PyYAML==5.3.1
 requests==2.23.0
-six==1.14.0
-soupsieve==2.0
-tqdm==4.46.0
+soupsieve==2.0.1
 urllib3==1.25.9
