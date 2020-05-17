@@ -58,10 +58,7 @@ class TvTimeExtractor(object):
                 raise ValueError('password is empty in config.yaml')
 
             if "save_path" not in content or content['save_path'] is None:
-                content['save_path'] = os.path.join(os.getcwd(), 'exports')
-
-                logger.info(f'Creating dir \'{content["save_path"]}\'')
-                os.makedirs(content['save_path'], exist_ok=True)
+                content['save_path'] = os.path.join(os.getcwd())
             else:
                 if not os.path.exists(content['save_path']):
                     raise ValueError(f'Config path \'{content["save_path"]}\' does not exist')
