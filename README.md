@@ -18,7 +18,7 @@ tv_time_export configPath
 
 ## config.yaml
 
-If no `sava_path` is given, it creates in current dir `exports` folder.
+If no `sava_path` is given, it exports to current dir.
 
 ```yaml
 username: ****
