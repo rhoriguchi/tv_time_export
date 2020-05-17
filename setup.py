@@ -1,9 +1,4 @@
-import os
-
 from setuptools import setup, find_packages
-
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'requirements.txt')) as f:
-    requires = f.read().splitlines()
 
 setup(
     author='Ryan Horiguchi',
@@ -14,7 +9,11 @@ setup(
             'tv_time_export = tv_time_export.main:main',
         ],
     },
-    install_requires=requires,
+    install_requires=[
+        'beautifulsoup4==4.9.0',
+        'pyyaml==5.3.1',
+        'requests==2.23.0'
+    ],
     license='MIT',
     name='tv_time_export',
     packages=find_packages(),
