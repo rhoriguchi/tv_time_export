@@ -5,9 +5,7 @@ setup(
     author_email='ryan.horiguchi@gmail.com',
     dependency_links=[],
     entry_points={
-        'console_scripts': [
-            'tv_time_export = tv_time_export.main:main',
-        ],
+        'console_scripts': ['tv_time_export = tv_time_export.__main__:main'],
     },
     install_requires=[
         'beautifulsoup4==4.9.0',
