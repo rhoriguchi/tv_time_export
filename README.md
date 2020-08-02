@@ -2,7 +2,7 @@
 
 This project runs with python3.
 
-It logs in to [Tv Time](https://www.tvtime.com) with the specified user and extracts the watched status of all tv shows and saves them as easy to read html file.
+It logs in to [Tv Time](https://www.tvtime.com) with the specified user and extracts the watched status of all tv shows and saves them as json.
 
 ## Install
 
@@ -12,8 +12,8 @@ python setup.py install
 
 If no `configPath` is given, it searches in current directory for `config.yaml`.
 
-```
-tv_time_export configPath
+```bash
+tv_time_export [configPath]
 ```
 
 ## config.yaml
