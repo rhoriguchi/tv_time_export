@@ -33,13 +33,13 @@ class TvTimeExtractor(object):
         if not os.path.isdir(save_path):
             raise ValueError(f'save_path "{save_path}" does not exist')
 
-        file_name = f'{username}_{datetime.datetime.now().isoformat("_", "seconds")}'
+        file_name = f'{username}_{datetime.datetime.now().isoformat("_", "seconds")}.json'
         file_path = os.path.join(save_path, file_name)
 
         logger.info(f'Saving data to "{file_path}"')
 
         with open(file_path, 'w+', errors='ignore') as file:
-            file.write(json.dumps(tv_show_states, indent=2))
+            file.write(json.dumps(tv_show_states, separators=(',', ':')))
 
     @staticmethod
     def _get_config_path():
