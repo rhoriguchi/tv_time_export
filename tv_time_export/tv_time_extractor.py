@@ -1,10 +1,11 @@
+import datetime
+import json
 import logging
 import os
 import sys
 
 import yaml
 
-from tv_time_export import file_writer
 from tv_time_export.request_handler import RequestHandler
 
 logger = logging.getLogger(__name__)
@@ -26,13 +27,23 @@ class TvTimeExtractor(object):
         return tv_show_states
 
     def save_tv_show_states(self, tv_show_states):
-        file_writer.save_tv_show_states(tv_show_states, self._content['save_path'], self._content['username'])
+        save_path = self._content['save_path']
+        username = self._content['username']
+
+        if not os.path.isdir(save_path):
+            raise ValueError(f'save_path "{save_path}" does not exist')
+
+        file_name = f'{username}_{datetime.datetime.now().isoformat("_", "seconds")}.json'
+        file_path = os.path.join(save_path, file_name)
+
+        logger.info(f'Saving data to "{file_path}"')
+
+        with open(file_path, 'w+', errors='ignore') as file:
+            file.write(json.dumps(tv_show_states, separators=(',', ':')))
 
     @staticmethod
     def _get_config_path():
-        argv = sys.argv
-
-        if len(argv) >= 2:
+        if len(argv := sys.argv) >= 2:
             if os.path.isabs(argv[1]):
                 return argv[1]
             else:
