@@ -44,6 +44,7 @@ class RequestHandler(object):
 
         for link in soup.find_all('a'):
             match = re.search('^.*/user/(\\d*)/profile$', link.get('href'))
+
             if match is not None and match.group(1) is not None:
                 self._profile_id = match.group(1)
 
@@ -74,7 +75,9 @@ class RequestHandler(object):
 
         soup = BeautifulSoup(response.content, 'html.parser')
 
-        title_raw = soup.find(id='top-banner').find_all('h1')[0].text
+        title_raw = soup.find(id='top-banner') \
+            .find_all('h1')[0] \
+            .text
         title = self._remove_extra_spaces(title_raw)
 
         logger.info(f'{self._counter.get_count():0=3d}-{self._counter.initial:0=3d} - Collection state for "{title}"')
@@ -93,23 +96,26 @@ class RequestHandler(object):
             if season is None:
                 break
 
-            episodes = season.find_all('li', {'class': 'episode-wrapper'})
-            for episode in episodes:
+            for episode in season.find_all('li', {'class': 'episode-wrapper'}):
                 episode_count += 1
                 season_episode_count += 1
 
-                number_raw = episode.find_all('span', {'class': 'episode-nb-label'})[0].text
+                number_raw = episode.find_all('span', {'class': 'episode-nb-label'})[0] \
+                    .text
                 number = self._remove_extra_spaces(number_raw)
 
-                link = episode.find_all('a', {'class': 'watched-btn'})[0]
-                if 'active' in link.attrs['class']:
+                is_active = episode.find_all('a', {'class': 'watched-btn'})[0] \
+                    .attrs['class']
+
+                if 'active' in is_active:
                     episode_state = True
                     watched_episode_count += 1
                     season_watched_episode_count += 1
                 else:
                     episode_state = False
 
-                episode_title_raw = episode.find_all('span', {'class': 'episode-name'})[0].text
+                episode_title_raw = episode.find_all('span', {'class': 'episode-name'})[0] \
+                    .text
                 episode_title = self._remove_extra_spaces(episode_title_raw.replace('\n', ''))
 
                 if episode_state or episode_title:
@@ -154,9 +160,8 @@ class RequestHandler(object):
 
     @staticmethod
     def _check_response_content(response):
-        content = str(response.content)
         for error_message in TV_TIME_ERROR_MESSAGES:
-            if error_message in content:
+            if error_message in str(response.content):
                 raise ValueError(f'Tv Time returned: {error_message}')
 
     def _get_all_tv_show_ids(self):
@@ -166,7 +171,8 @@ class RequestHandler(object):
         response = self._session.get(url)
 
         soup = BeautifulSoup(response.content, 'html.parser')
-        links = soup.find_all('ul', {'class': 'shows-list'})[1].find_all('a')
+        links = soup.find_all('ul', {'class': 'shows-list'})[1] \
+            .find_all('a')
 
         tv_show_ids = set()
         for link in links:
