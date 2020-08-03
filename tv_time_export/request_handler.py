@@ -68,7 +68,7 @@ class RequestHandler(object):
         return tv_show_states
 
     def _get_tv_show_states(self, tv_show_id):
-        season_data = {}
+        seasons = {}
 
         url = urljoin(PAGE_URL, f'show/{tv_show_id}/')
         response = self._session.get(url)
@@ -85,14 +85,14 @@ class RequestHandler(object):
         episode_count = 0
         watched_episode_count = 0
 
-        i = 1
+        season_number = 1
         while True:
-            episode_data = {}
+            episodes = {}
 
             season_episode_count = 0
             season_watched_episode_count = 0
 
-            season = soup.find(id=f'season{i}-content')
+            season = soup.find(id=f'season{season_number}-content')
             if season is None:
                 break
 
@@ -100,9 +100,9 @@ class RequestHandler(object):
                 episode_count += 1
                 season_episode_count += 1
 
-                number_raw = episode.find_all('span', {'class': 'episode-nb-label'})[0] \
+                episode_number_raw = episode.find_all('span', {'class': 'episode-nb-label'})[0] \
                     .text
-                number = self._remove_extra_spaces(number_raw)
+                episode_number = self._remove_extra_spaces(episode_number_raw)
 
                 is_active = episode.find_all('a', {'class': 'watched-btn'})[0] \
                     .attrs['class']
@@ -119,19 +119,19 @@ class RequestHandler(object):
                 episode_title = self._remove_extra_spaces(episode_title_raw.replace('\n', ''))
 
                 if episode_state or episode_title:
-                    episode_data[number] = {
+                    episodes[episode_number] = {
                         'watched': episode_state,
                         'title': episode_title
                     }
 
-            if episode_data:
-                season_data[i] = {
-                    'data': episode_data,
+            if episodes:
+                seasons[season_number] = {
+                    'episodes': episodes,
                     'episode_count': season_episode_count,
                     'watched_episode_count': season_watched_episode_count
                 }
 
-            i += 1
+            season_number += 1
 
         logger.info(
             f'{self._counter.decrement():0=3d}-{self._counter.initial:0=3d} - Done collecting state for "{title}"')
@@ -139,7 +139,7 @@ class RequestHandler(object):
         return {
             'id': tv_show_id,
             'title': title,
-            'data': season_data,
+            'seasons': seasons,
             'episode_count': episode_count,
             'watched_episode_count': watched_episode_count
         }
