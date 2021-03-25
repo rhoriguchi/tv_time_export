@@ -9,7 +9,7 @@ setup(
     },
     install_requires=[
         'beautifulsoup4==4.9.0',
-        'PyYAML==5.3.1',
+        'PyYAML==5.4',
         'requests==2.23.0'
     ],
     license='MIT',
