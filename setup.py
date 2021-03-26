@@ -17,6 +17,6 @@ setup(
     packages=find_packages(),
     python_requires='>=3.7',
     url='git@github.com:rhoriguchi/tv_time_export.git',
-    version='1.0.8',
+    version='1.0.9',
     zip_safe=False,
 )
