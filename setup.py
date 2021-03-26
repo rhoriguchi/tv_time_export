@@ -8,9 +8,9 @@ setup(
         'console_scripts': ['tv_time_export = tv_time_export.__main__:main'],
     },
     install_requires=[
-        'beautifulsoup4==4.9.0',
-        'PyYAML==5.3.1',
-        'requests==2.23.0'
+        'beautifulsoup4==4.9.3',
+        'PyYAML==5.4.1',
+        'requests==2.25.1'
     ],
     license='MIT',
     name='tv_time_export',
