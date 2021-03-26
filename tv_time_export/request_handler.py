@@ -82,24 +82,15 @@ class RequestHandler(object):
 
         logger.info(f'{self._counter.get_count():0=3d}-{self._counter.initial:0=3d} - Collection state for "{title}"')
 
-        episode_count = 0
-        watched_episode_count = 0
-
         season_number = 1
         while True:
             episodes = {}
-
-            season_episode_count = 0
-            season_watched_episode_count = 0
 
             season = soup.find(id=f'season{season_number}-content')
             if season is None:
                 break
 
             for episode in season.find_all('li', {'class': 'episode-wrapper'}):
-                episode_count += 1
-                season_episode_count += 1
-
                 episode_number_raw = episode.find_all('span', {'class': 'episode-nb-label'})[0] \
                     .text
                 episode_number = self._remove_extra_spaces(episode_number_raw)
@@ -109,8 +100,6 @@ class RequestHandler(object):
 
                 if 'active' in is_active:
                     episode_state = True
-                    watched_episode_count += 1
-                    season_watched_episode_count += 1
                 else:
                     episode_state = False
 
@@ -125,11 +114,7 @@ class RequestHandler(object):
                     }
 
             if episodes:
-                seasons[season_number] = {
-                    'episodes': episodes,
-                    'episode_count': season_episode_count,
-                    'watched_episode_count': season_watched_episode_count
-                }
+                seasons[season_number] = episodes
 
             season_number += 1
 
@@ -140,8 +125,6 @@ class RequestHandler(object):
             'id': tv_show_id,
             'title': title,
             'seasons': seasons,
-            'episode_count': episode_count,
-            'watched_episode_count': watched_episode_count
         }
 
     @staticmethod
