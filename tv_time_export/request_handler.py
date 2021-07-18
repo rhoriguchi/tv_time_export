@@ -154,7 +154,8 @@ class RequestHandler(object):
         response = self._session.get(url)
 
         soup = BeautifulSoup(response.content, 'html.parser')
-        links = soup.find_all('ul', {'class': 'shows-list'})[1] \
+        links = soup.find(id='all-shows') \
+            .find_all('ul', {'class': 'shows-list'})[0] \
             .find_all('a')
 
         tv_show_ids = set()
