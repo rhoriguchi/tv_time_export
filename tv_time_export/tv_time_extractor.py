@@ -1,8 +1,8 @@
-import datetime
 import json
 import logging
 import os
 import sys
+from datetime import datetime
 
 import yaml
 
@@ -33,7 +33,7 @@ class TvTimeExtractor(object):
         if not os.path.isdir(save_path):
             raise ValueError(f'save_path "{save_path}" does not exist')
 
-        file_name = f'{username}_{datetime.datetime.now().isoformat("_", "seconds")}.json'
+        file_name = f'{username}_{datetime.now().isoformat("_", "seconds")}.json'
         file_path = os.path.join(save_path, file_name)
 
         logger.info(f'Saving data to "{file_path}"')
