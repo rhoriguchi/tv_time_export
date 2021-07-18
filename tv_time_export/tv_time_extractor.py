@@ -59,7 +59,7 @@ class TvTimeExtractor(object):
         if not os.path.exists(config_path):
             raise ValueError(f'Config path "{config_path}" does not exist')
 
-        logger.info(f'Reading {config_path}')
+        logger.info(f'Reading "{config_path}"')
 
         with open(config_path, 'r') as stream:
             content = yaml.safe_load(stream)
