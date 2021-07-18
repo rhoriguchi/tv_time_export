@@ -57,23 +57,23 @@ class TvTimeExtractor(object):
         config_path = self._get_config_path()
 
         if not os.path.exists(config_path):
-            raise ValueError(f'Config path \'{config_path}\' does not exist')
+            raise ValueError(f'Config path "{config_path}" does not exist')
 
         logger.info(f'Reading {config_path}')
 
         with open(config_path, 'r') as stream:
             content = yaml.safe_load(stream)
 
-            if "username" not in content or content['username'] is None:
+            if 'username' not in content or content['username'] is None:
                 raise ValueError('username is empty in config.yaml')
 
-            if "password" not in content or content['password'] is None:
+            if 'password' not in content or content['password'] is None:
                 raise ValueError('password is empty in config.yaml')
 
-            if "save_path" not in content or content['save_path'] is None:
+            if 'save_path' not in content or content['save_path'] is None:
                 content['save_path'] = os.path.join(os.getcwd())
             else:
                 if not os.path.exists(content['save_path']):
-                    raise ValueError(f'Config path \'{content["save_path"]}\' does not exist')
+                    raise ValueError(f'Config path "{content["save_path"]}" does not exist')
 
             return content
