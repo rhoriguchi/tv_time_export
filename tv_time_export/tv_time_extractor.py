@@ -38,7 +38,7 @@ class TvTimeExtractor(object):
 
         logger.info(f'Saving data to "{file_path}"')
 
-        with open(file_path, 'w+', errors='ignore') as file:
+        with open(file_path, 'w+') as file:
             file.write(json.dumps(tv_show_states, separators=(',', ':')))
 
     @staticmethod
