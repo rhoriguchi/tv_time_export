@@ -76,4 +76,9 @@ class TvTimeExtractor(object):
                 if not os.path.exists(content['save_path']):
                     raise ValueError(f'Config path "{content["save_path"]}" does not exist')
 
+            log_content = dict(content)
+            log_content['password'] = '*' * len(log_content['password'])
+
+            logger.info(f'Config values: {log_content}')
+
             return content
