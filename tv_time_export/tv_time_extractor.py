@@ -33,7 +33,11 @@ class TvTimeExtractor(object):
         if not os.path.isdir(save_path):
             raise ValueError(f'save_path "{save_path}" does not exist')
 
-        file_name = f'{username}_{datetime.now().isoformat("_", "seconds")}.json'
+        datetime_string = datetime.now().isoformat('_', 'seconds') \
+            .replace('-', '') \
+            .replace(':', '')
+        file_name = f'{username}_{datetime_string}.json'
+
         file_path = os.path.join(save_path, file_name)
 
         logger.info(f'Saving data to "{file_path}"')
