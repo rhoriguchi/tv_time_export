@@ -43,7 +43,7 @@ class RequestHandler(object):
         soup = BeautifulSoup(response.content, 'html.parser')
 
         for link in soup.find_all('a'):
-            match = re.search('^.*/user/(\\d*)/profile$', link.get('href'))
+            match = re.search(r'^.*/user/(\d*)/profile$', link.get('href'))
 
             if match is not None and match.group(1) is not None:
                 self._profile_id = match.group(1)
@@ -160,7 +160,7 @@ class RequestHandler(object):
 
         tv_show_ids = set()
         for link in links:
-            match = re.search('^.*/show/(\\d*)', link.get('href'))
+            match = re.search(r'^.*/show/(\d*)', link.get('href'))
             tv_show_ids.add(match.group(1))
 
         logger.info(f'Collected {len(tv_show_ids)} show ids')
