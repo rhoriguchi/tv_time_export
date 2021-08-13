@@ -1,8 +1,8 @@
-import datetime
 import json
 import logging
-import os
 import sys
+from datetime import datetime
+from pathlib import Path
 
 import yaml
 
@@ -27,18 +27,22 @@ class TvTimeExtractor(object):
         return tv_show_states
 
     def save_tv_show_states(self, tv_show_states):
-        save_path = self._content['save_path']
+        save_path = Path(self._content['save_path'])
         username = self._content['username']
 
-        if not os.path.isdir(save_path):
+        if not save_path.is_dir():
             raise ValueError(f'save_path "{save_path}" does not exist')
 
-        file_name = f'{username}_{datetime.datetime.now().isoformat("_", "seconds")}.json'
-        file_path = os.path.join(save_path, file_name)
+        datetime_string = datetime.now().isoformat('T', 'seconds') \
+            .replace('-', '') \
+            .replace(':', '')
+        file_name = f'{username}_{datetime_string}.json'
+
+        file_path = save_path.joinpath(file_name)
 
         logger.info(f'Saving data to "{file_path}"')
 
-        with open(file_path, 'w+', errors='ignore') as file:
+        with open(file_path, 'w+') as file:
             file.write(json.dumps(tv_show_states, separators=(',', ':')))
 
     @staticmethod
@@ -46,34 +50,42 @@ class TvTimeExtractor(object):
         argv = sys.argv
 
         if len(argv) >= 2:
-            if os.path.isabs(argv[1]):
+            if Path(argv[1]).is_absolute():
                 return argv[1]
             else:
-                return os.path.join(os.getcwd(), argv[1])
+                return Path.cwd().joinpath(argv[1])
         else:
-            return os.path.join(os.getcwd(), 'config.yaml')
+            return Path.cwd().joinpath('config.yaml')
 
     def _read_config(self):
         config_path = self._get_config_path()
 
-        if not os.path.exists(config_path):
-            raise ValueError(f'Config path \'{config_path}\' does not exist')
+        if not config_path.exists():
+            raise ValueError(f'Config path "{config_path}" does not exist')
 
-        logger.info(f'Reading {config_path}')
+        logger.info(f'Reading "{config_path}"')
 
         with open(config_path, 'r') as stream:
             content = yaml.safe_load(stream)
 
-            if "username" not in content or content['username'] is None:
+            if 'username' not in content or content['username'] is None:
                 raise ValueError('username is empty in config.yaml')
 
-            if "password" not in content or content['password'] is None:
+            if 'password' not in content or content['password'] is None:
                 raise ValueError('password is empty in config.yaml')
 
-            if "save_path" not in content or content['save_path'] is None:
-                content['save_path'] = os.path.join(os.getcwd())
-            else:
-                if not os.path.exists(content['save_path']):
-                    raise ValueError(f'Config path \'{content["save_path"]}\' does not exist')
+            if 'save_path' not in content or content['save_path'] is None:
+                content['save_path'] = Path.cwd()
+
+            content['save_path'] = Path(content['save_path'])
+
+            if not content['save_path'].exists():
+                raise ValueError(f'Config path "{content["save_path"]}" does not exist')
+
+            log_content = dict(content)
+            log_content['password'] = '*' * len(log_content['password'])
+            log_content['save_path'] = str(log_content['save_path'])
+
+            logger.info(f'Config values: {log_content}')
 
             return content
