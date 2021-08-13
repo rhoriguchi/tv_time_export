@@ -12,7 +12,7 @@ setup(
         'PyYAML==5.4.1',
         'requests==2.26.0'
     ],
-    license='MIT',
+    license='AGPL-3.0',
     name='tv_time_export',
     packages=find_packages(),
     python_requires='>=3.7',
