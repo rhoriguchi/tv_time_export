@@ -50,10 +50,12 @@ class TvTimeExtractor(object):
         argv = sys.argv
 
         if len(argv) >= 2:
-            if Path(argv[1]).is_absolute():
-                return argv[1]
+            config_path = Path(argv[1])
+
+            if config_path.is_absolute():
+                return config_path
             else:
-                return Path.cwd().joinpath(argv[1])
+                return Path.cwd().joinpath(config_path)
         else:
             return Path.cwd().joinpath('config.yaml')
 
