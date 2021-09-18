@@ -27,7 +27,7 @@ class TvTimeExtractor(object):
         return tv_show_states
 
     def save_tv_show_states(self, tv_show_states):
-        save_path = Path(self._content['save_path'])
+        save_path = self._content['save_path']
         username = self._content['username']
 
         if not save_path.is_dir():
