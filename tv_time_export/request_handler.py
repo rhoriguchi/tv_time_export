@@ -155,13 +155,13 @@ class RequestHandler(object):
         soup = BeautifulSoup(response.content, 'html.parser')
         links = soup.find(id='all-shows') \
             .find('ul', {'class': 'shows-list'}) \
-            .find_all('a')
+            .find_all('a', {'class': 'show-link'})
 
-        tv_show_ids = set()
+        tv_show_ids = []
         for link in links:
             match = re.search(r'^.*/show/(\d*)', link.get('href'))
-            tv_show_ids.add(match.group(1))
+            tv_show_ids.append(match.group(1))
 
         logger.info(f'Collected {len(tv_show_ids)} show ids')
 
-        return tv_show_ids
+        return sorted(tv_show_ids)
