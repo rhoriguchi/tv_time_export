@@ -64,6 +64,7 @@ class RequestHandler(object):
 
     @retry(stop_max_attempt_number=3, wait_fixed=30 * 1_000)
     def _get_tv_show_states(self, tv_show_id):
+        first_air_date = None
         seasons = {}
 
         url = urljoin(PAGE_URL, f'show/{tv_show_id}/')
@@ -87,6 +88,11 @@ class RequestHandler(object):
                 break
 
             for episode in season.find_all('li', {'class': 'episode-wrapper'}):
+                if first_air_date is None:
+                    first_air_date_raw = episode.find_all('span', {'class': 'episode-air-date'})[0] \
+                        .text
+                    first_air_date = self._remove_extra_spaces(first_air_date_raw).split('-')[0]
+
                 episode_number_raw = episode.find_all('span', {'class': 'episode-nb-label'})[0] \
                     .text
                 episode_number = self._remove_extra_spaces(episode_number_raw)
@@ -117,6 +123,7 @@ class RequestHandler(object):
         return {
             'id': tv_show_id,
             'title': title,
+            'first_air_date': first_air_date if first_air_date else 'Unknown',
             'seasons': seasons,
         }
 
