@@ -1,10 +1,11 @@
 import logging
 import re
-import time
+from multiprocessing.dummy import Pool as ThreadPool
 from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
+from retrying import retry
 
 PAGE_URL = 'https://www.tvtime.com/'
 
@@ -56,18 +57,14 @@ class RequestHandler(object):
     def get_all_tv_show_states(self):
         tv_show_ids = self._get_tv_show_ids()
 
-        tv_show_states = []
+        with ThreadPool() as pool:
+            tv_show_states = list(pool.imap(self._get_tv_show_states, tv_show_ids))
 
-        for tv_show_id in tv_show_ids:
-            try:
-                tv_show_states.append(self._get_tv_show_states(tv_show_id))
-            except Exception:
-                logger.info(f'Failed to collect state for id "{tv_show_id}" retrying in 30 seconds')
-                time.sleep(30)
+        return sorted(tv_show_states, key=lambda state: state['title'])
 
-        return tv_show_states
-
+    @retry(stop_max_attempt_number=3, wait_fixed=30 * 1_000)
     def _get_tv_show_states(self, tv_show_id):
+        first_air_date = None
         seasons = {}
 
         url = urljoin(PAGE_URL, f'show/{tv_show_id}/')
@@ -76,9 +73,9 @@ class RequestHandler(object):
         soup = BeautifulSoup(response.content, 'html.parser')
 
         title_raw = soup.find(id='top-banner') \
-            .find_all('h1')[0] \
+            .find('h1') \
             .text
-        title = self._remove_extra_spaces(title_raw)
+        title = re.sub(r'\(\d{4}\)$', '', self._remove_extra_spaces(title_raw))
 
         logger.info(f'Collecting state for "{title}"')
 
@@ -91,11 +88,16 @@ class RequestHandler(object):
                 break
 
             for episode in season.find_all('li', {'class': 'episode-wrapper'}):
-                episode_number_raw = episode.find_all('span', {'class': 'episode-nb-label'})[0] \
+                if first_air_date is None:
+                    first_air_date_raw = episode.find('span', {'class': 'episode-air-date'}) \
+                        .text
+                    first_air_date = self._remove_extra_spaces(first_air_date_raw).split('-')[0]
+
+                episode_number_raw = episode.find('span', {'class': 'episode-nb-label'}) \
                     .text
                 episode_number = self._remove_extra_spaces(episode_number_raw)
 
-                is_active = episode.find_all('a', {'class': 'watched-btn'})[0] \
+                is_active = episode.find('a', {'class': 'watched-btn'}) \
                     .attrs['class']
 
                 if 'active' in is_active:
@@ -103,14 +105,14 @@ class RequestHandler(object):
                 else:
                     episode_state = False
 
-                episode_title_raw = episode.find_all('span', {'class': 'episode-name'})[0] \
+                episode_title_raw = episode.find('span', {'class': 'episode-name'}) \
                     .text
                 episode_title = self._remove_extra_spaces(episode_title_raw.replace('\n', ''))
 
                 if episode_state or episode_title:
                     episodes[episode_number] = {
-                        'watched': episode_state,
-                        'title': episode_title
+                        'title': episode_title,
+                        'watched': episode_state
                     }
 
             if episodes:
@@ -121,7 +123,8 @@ class RequestHandler(object):
         return {
             'id': tv_show_id,
             'title': title,
-            'seasons': seasons,
+            'first_air_date': first_air_date if first_air_date else 'Unknown',
+            'seasons': seasons
         }
 
     @staticmethod
@@ -144,20 +147,21 @@ class RequestHandler(object):
             if error_message in str(response.content):
                 raise ValueError(f'TV Time returned: {error_message}')
 
+    @retry(stop_max_attempt_number=3, wait_fixed=30 * 1_000)
     def _get_tv_show_ids(self):
         url = urljoin(PAGE_URL, f'user/{self._profile_id}/profile')
         response = self._session.get(url)
 
         soup = BeautifulSoup(response.content, 'html.parser')
         links = soup.find(id='all-shows') \
-            .find_all('ul', {'class': 'shows-list'})[0] \
-            .find_all('a')
+            .find('ul', {'class': 'shows-list'}) \
+            .find_all('a', {'class': 'show-link'})
 
-        tv_show_ids = set()
+        tv_show_ids = []
         for link in links:
             match = re.search(r'^.*/show/(\d*)', link.get('href'))
-            tv_show_ids.add(match.group(1))
+            tv_show_ids.append(match.group(1))
 
         logger.info(f'Collected {len(tv_show_ids)} show ids')
 
-        return tv_show_ids
+        return sorted(tv_show_ids)
