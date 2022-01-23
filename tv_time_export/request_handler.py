@@ -30,7 +30,7 @@ class RequestHandler(object):
         return session
 
     def login(self):
-        logger.info(f'Logging in to Tv Time with user "{self._username}"')
+        logger.info(f'Logging in to TV Time with user "{self._username}"')
 
         url = urljoin(PAGE_URL, 'signin')
         data = {'username': self._username, 'password': self._password}
@@ -46,7 +46,7 @@ class RequestHandler(object):
                 self._profile_id = match.group(1)
 
     def logout(self):
-        logger.info('Logging out of Tv Time')
+        logger.info('Logging out of TV Time')
 
         url = urljoin(PAGE_URL, 'signout')
         self._session.get(url)
@@ -130,13 +130,13 @@ class RequestHandler(object):
     def _check_response_status_code(response):
         if not response.ok:
             raise ValueError(
-                f'Tv Time returned status code {response.status_code} with reason: {response.reason}')
+                f'TV Time returned status code {response.status_code} with reason: {response.reason}')
 
     @staticmethod
     def _check_response_content(response):
         for error_message in TV_TIME_ERROR_MESSAGES:
             if error_message in str(response.content):
-                raise ValueError(f'Tv Time returned: {error_message}')
+                raise ValueError(f'TV Time returned: {error_message}')
 
     def _get_all_tv_show_ids(self):
         url = urljoin(PAGE_URL, f'user/{self._profile_id}/profile')
