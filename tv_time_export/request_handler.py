@@ -74,7 +74,7 @@ class RequestHandler(object):
             .text
         title = self._remove_extra_spaces(title_raw)
 
-        logger.info(f'Collection state for "{title}"')
+        logger.info(f'Collecting state for "{title}"')
 
         season_number = 1
         while True:
