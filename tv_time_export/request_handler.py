@@ -1,6 +1,6 @@
 import logging
 import re
-from multiprocessing.dummy import Pool as ThreadPool
+import time
 from urllib.parse import urljoin
 
 import requests
@@ -56,8 +56,14 @@ class RequestHandler(object):
     def get_all_tv_show_states(self):
         tv_show_ids = self._get_tv_show_ids()
 
-        with ThreadPool() as pool:
-            tv_show_states = list(pool.imap(self._get_tv_show_states, tv_show_ids))
+        tv_show_states = []
+
+        for tv_show_id in tv_show_ids:
+            try:
+                tv_show_states.append(self._get_tv_show_states(tv_show_id))
+            except Exception:
+                logger.info(f'Failed to collect state for id "{tv_show_id}" retrying in 30 seconds')
+                time.sleep(30)
 
         return tv_show_states
 
