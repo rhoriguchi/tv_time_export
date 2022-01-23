@@ -10,7 +10,7 @@ setup(
     install_requires=[
         'beautifulsoup4==4.10.0',
         'PyYAML==6.0',
-        'requests==2.26.0'
+        'requests==2.27.1'
     ],
     license='AGPL-3.0',
     name='tv_time_export',
