@@ -6,8 +6,6 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-from tv_time_export.atomic_counter import AtomicCounter
-
 PAGE_URL = 'https://www.tvtime.com/'
 
 TV_TIME_ERROR_MESSAGES = [
@@ -24,7 +22,6 @@ class RequestHandler(object):
         self._username = username
         self._password = password
         self._profile_id = None
-        self._counter = AtomicCounter()
 
     @staticmethod
     def _get_session():
@@ -57,10 +54,7 @@ class RequestHandler(object):
         self._profile_id = None
 
     def get_all_tv_show_states(self):
-        logger.info('Collecting data from Tv Time')
-
         tv_show_ids = self._get_all_tv_show_ids()
-        self._counter.init(len(tv_show_ids))
 
         with ThreadPool() as pool:
             tv_show_states = list(pool.imap(self._get_tv_show_states, tv_show_ids))
@@ -80,7 +74,7 @@ class RequestHandler(object):
             .text
         title = self._remove_extra_spaces(title_raw)
 
-        logger.info(f'{self._counter.get_count():0=3d}-{self._counter.initial:0=3d} - Collection state for "{title}"')
+        logger.info(f'Collection state for "{title}"')
 
         season_number = 1
         while True:
@@ -118,9 +112,6 @@ class RequestHandler(object):
 
             season_number += 1
 
-        logger.info(
-            f'{self._counter.decrement():0=3d}-{self._counter.initial:0=3d} - Done collecting state for "{title}"')
-
         return {
             'id': tv_show_id,
             'title': title,
@@ -148,8 +139,6 @@ class RequestHandler(object):
                 raise ValueError(f'Tv Time returned: {error_message}')
 
     def _get_all_tv_show_ids(self):
-        logger.info('Collecting all show ids')
-
         url = urljoin(PAGE_URL, f'user/{self._profile_id}/profile')
         response = self._session.get(url)
 
