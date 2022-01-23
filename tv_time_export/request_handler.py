@@ -65,7 +65,7 @@ class RequestHandler(object):
                 logger.info(f'Failed to collect state for id "{tv_show_id}" retrying in 30 seconds')
                 time.sleep(30)
 
-        return tv_show_states
+        return sorted(tv_show_states, key=lambda state: state['title'])
 
     def _get_tv_show_states(self, tv_show_id):
         seasons = {}
