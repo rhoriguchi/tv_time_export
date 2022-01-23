@@ -54,7 +54,7 @@ class RequestHandler(object):
         self._profile_id = None
 
     def get_all_tv_show_states(self):
-        tv_show_ids = self._get_all_tv_show_ids()
+        tv_show_ids = self._get_tv_show_ids()
 
         with ThreadPool() as pool:
             tv_show_states = list(pool.imap(self._get_tv_show_states, tv_show_ids))
@@ -138,7 +138,7 @@ class RequestHandler(object):
             if error_message in str(response.content):
                 raise ValueError(f'TV Time returned: {error_message}')
 
-    def _get_all_tv_show_ids(self):
+    def _get_tv_show_ids(self):
         url = urljoin(PAGE_URL, f'user/{self._profile_id}/profile')
         response = self._session.get(url)
 
