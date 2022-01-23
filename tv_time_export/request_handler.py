@@ -75,7 +75,7 @@ class RequestHandler(object):
         title_raw = soup.find(id='top-banner') \
             .find_all('h1')[0] \
             .text
-        title = self._remove_extra_spaces(title_raw)
+        title = re.sub(r'\(\d{4}\)$', '', self._remove_extra_spaces(title_raw))
 
         logger.info(f'Collecting state for "{title}"')
 
