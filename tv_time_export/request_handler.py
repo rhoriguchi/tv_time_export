@@ -1,12 +1,10 @@
 import logging
 import re
-from multiprocessing.dummy import Pool as ThreadPool
+import time
 from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
-
-from tv_time_export.atomic_counter import AtomicCounter
 
 PAGE_URL = 'https://www.tvtime.com/'
 
@@ -24,7 +22,6 @@ class RequestHandler(object):
         self._username = username
         self._password = password
         self._profile_id = None
-        self._counter = AtomicCounter()
 
     @staticmethod
     def _get_session():
@@ -33,7 +30,7 @@ class RequestHandler(object):
         return session
 
     def login(self):
-        logger.info(f'Logging in to Tv Time with user "{self._username}"')
+        logger.info(f'Logging in to TV Time with user "{self._username}"')
 
         url = urljoin(PAGE_URL, 'signin')
         data = {'username': self._username, 'password': self._password}
@@ -49,7 +46,7 @@ class RequestHandler(object):
                 self._profile_id = match.group(1)
 
     def logout(self):
-        logger.info('Logging out of Tv Time')
+        logger.info('Logging out of TV Time')
 
         url = urljoin(PAGE_URL, 'signout')
         self._session.get(url)
@@ -57,13 +54,16 @@ class RequestHandler(object):
         self._profile_id = None
 
     def get_all_tv_show_states(self):
-        logger.info('Collecting data from Tv Time')
+        tv_show_ids = self._get_tv_show_ids()
 
-        tv_show_ids = self._get_all_tv_show_ids()
-        self._counter.init(len(tv_show_ids))
+        tv_show_states = []
 
-        with ThreadPool() as pool:
-            tv_show_states = list(pool.imap(self._get_tv_show_states, tv_show_ids))
+        for tv_show_id in tv_show_ids:
+            try:
+                tv_show_states.append(self._get_tv_show_states(tv_show_id))
+            except Exception:
+                logger.info(f'Failed to collect state for id "{tv_show_id}" retrying in 30 seconds')
+                time.sleep(30)
 
         return tv_show_states
 
@@ -80,7 +80,7 @@ class RequestHandler(object):
             .text
         title = self._remove_extra_spaces(title_raw)
 
-        logger.info(f'{self._counter.get_count():0=3d}-{self._counter.initial:0=3d} - Collection state for "{title}"')
+        logger.info(f'Collecting state for "{title}"')
 
         season_number = 1
         while True:
@@ -118,9 +118,6 @@ class RequestHandler(object):
 
             season_number += 1
 
-        logger.info(
-            f'{self._counter.decrement():0=3d}-{self._counter.initial:0=3d} - Done collecting state for "{title}"')
-
         return {
             'id': tv_show_id,
             'title': title,
@@ -139,17 +136,15 @@ class RequestHandler(object):
     def _check_response_status_code(response):
         if not response.ok:
             raise ValueError(
-                f'Tv Time returned status code {response.status_code} with reason: {response.reason}')
+                f'TV Time returned status code {response.status_code} with reason: {response.reason}')
 
     @staticmethod
     def _check_response_content(response):
         for error_message in TV_TIME_ERROR_MESSAGES:
             if error_message in str(response.content):
-                raise ValueError(f'Tv Time returned: {error_message}')
+                raise ValueError(f'TV Time returned: {error_message}')
 
-    def _get_all_tv_show_ids(self):
-        logger.info('Collecting all show ids')
-
+    def _get_tv_show_ids(self):
         url = urljoin(PAGE_URL, f'user/{self._profile_id}/profile')
         response = self._session.get(url)
 
