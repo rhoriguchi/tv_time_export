@@ -73,7 +73,7 @@ class RequestHandler(object):
         soup = BeautifulSoup(response.content, 'html.parser')
 
         title_raw = soup.find(id='top-banner') \
-            .find_all('h1')[0] \
+            .find('h1') \
             .text
         title = re.sub(r'\(\d{4}\)$', '', self._remove_extra_spaces(title_raw))
 
@@ -89,15 +89,15 @@ class RequestHandler(object):
 
             for episode in season.find_all('li', {'class': 'episode-wrapper'}):
                 if first_air_date is None:
-                    first_air_date_raw = episode.find_all('span', {'class': 'episode-air-date'})[0] \
+                    first_air_date_raw = episode.find('span', {'class': 'episode-air-date'}) \
                         .text
                     first_air_date = self._remove_extra_spaces(first_air_date_raw).split('-')[0]
 
-                episode_number_raw = episode.find_all('span', {'class': 'episode-nb-label'})[0] \
+                episode_number_raw = episode.find('span', {'class': 'episode-nb-label'}) \
                     .text
                 episode_number = self._remove_extra_spaces(episode_number_raw)
 
-                is_active = episode.find_all('a', {'class': 'watched-btn'})[0] \
+                is_active = episode.find('a', {'class': 'watched-btn'}) \
                     .attrs['class']
 
                 if 'active' in is_active:
@@ -105,7 +105,7 @@ class RequestHandler(object):
                 else:
                     episode_state = False
 
-                episode_title_raw = episode.find_all('span', {'class': 'episode-name'})[0] \
+                episode_title_raw = episode.find('span', {'class': 'episode-name'}) \
                     .text
                 episode_title = self._remove_extra_spaces(episode_title_raw.replace('\n', ''))
 
@@ -154,7 +154,7 @@ class RequestHandler(object):
 
         soup = BeautifulSoup(response.content, 'html.parser')
         links = soup.find(id='all-shows') \
-            .find_all('ul', {'class': 'shows-list'})[0] \
+            .find('ul', {'class': 'shows-list'}) \
             .find_all('a')
 
         tv_show_ids = set()
