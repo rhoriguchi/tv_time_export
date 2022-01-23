@@ -57,7 +57,6 @@ class RequestHandler(object):
         tv_show_ids = self._get_tv_show_ids()
 
         tv_show_states = []
-
         for tv_show_id in tv_show_ids:
             tv_show_states.append(self._get_tv_show_states(tv_show_id))
 
