@@ -111,8 +111,8 @@ class RequestHandler(object):
 
                 if episode_state or episode_title:
                     episodes[episode_number] = {
-                        'watched': episode_state,
-                        'title': episode_title
+                        'title': episode_title,
+                        'watched': episode_state
                     }
 
             if episodes:
@@ -124,7 +124,7 @@ class RequestHandler(object):
             'id': tv_show_id,
             'title': title,
             'first_air_date': first_air_date if first_air_date else 'Unknown',
-            'seasons': seasons,
+            'seasons': seasons
         }
 
     @staticmethod
