@@ -1,10 +1,10 @@
 import logging
 import re
-import time
 from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
+from retrying import retry
 
 PAGE_URL = 'https://www.tvtime.com/'
 
@@ -59,14 +59,11 @@ class RequestHandler(object):
         tv_show_states = []
 
         for tv_show_id in tv_show_ids:
-            try:
-                tv_show_states.append(self._get_tv_show_states(tv_show_id))
-            except Exception:
-                logger.info(f'Failed to collect state for id "{tv_show_id}" retrying in 30 seconds')
-                time.sleep(30)
+            tv_show_states.append(self._get_tv_show_states(tv_show_id))
 
         return sorted(tv_show_states, key=lambda state: state['title'])
 
+    @retry(stop_max_attempt_number=3, wait_fixed=30 * 1_000)
     def _get_tv_show_states(self, tv_show_id):
         seasons = {}
 
@@ -144,6 +141,7 @@ class RequestHandler(object):
             if error_message in str(response.content):
                 raise ValueError(f'TV Time returned: {error_message}')
 
+    @retry(stop_max_attempt_number=3, wait_fixed=30 * 1_000)
     def _get_tv_show_ids(self):
         url = urljoin(PAGE_URL, f'user/{self._profile_id}/profile')
         response = self._session.get(url)
