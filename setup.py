@@ -9,7 +9,8 @@ setup(
     },
     install_requires=[
         'PyYAML==6.0',
-        'beautifulsoup4==4.10.0',
+        'beautifulsoup4==4.11.1',
+        'charset-normalizer==1.3.3'
         'requests==2.27.1',
         'retrying==1.3.3'
     ],
