@@ -10,7 +10,7 @@ setup(
     install_requires=[
         'PyYAML==6.0',
         'beautifulsoup4==4.11.1',
-        'charset-normalizer==1.3.3'
+        'charset-normalizer==1.3.3',
         'requests==2.27.1',
         'retrying==1.3.3'
     ],
@@ -19,6 +19,6 @@ setup(
     packages=find_packages(),
     python_requires='>=3.7',
     url='git@github.com:rhoriguchi/tv_time_export.git',
-    version='1.0.16',
+    version='1.0.17',
     zip_safe=False,
 )
