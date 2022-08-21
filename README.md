@@ -6,7 +6,9 @@ It logs in to [TV Time](https://www.tvtime.com) with the specified user and extr
 
 ## Install
 
+```bash
 python setup.py install
+```
 
 ## Run
 
