@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from retrying import retry
 
-PAGE_URL = 'https://www.tvtime.com/'
+PAGE_URL = 'https://www.tvtime.com'
 
 TV_TIME_ERROR_MESSAGES = [
     'This user does not exist',
