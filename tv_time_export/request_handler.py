@@ -67,7 +67,7 @@ class RequestHandler(object):
         first_air_date = None
         seasons = {}
 
-        url = urljoin(PAGE_URL, f'show/{tv_show_id}/')
+        url = urljoin(PAGE_URL, f'show/{tv_show_id}')
         response = self._session.get(url)
 
         soup = BeautifulSoup(response.content, 'html.parser')
