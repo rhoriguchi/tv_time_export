@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from retrying import retry
 
-PAGE_URL = 'https://www.tvtime.com/'
+PAGE_URL = 'https://www.tvtime.com'
 
 TV_TIME_ERROR_MESSAGES = [
     'This user does not exist',
@@ -41,7 +41,7 @@ class RequestHandler(object):
         soup = BeautifulSoup(response.content, 'html.parser')
 
         for link in soup.find_all('a'):
-            match = re.search(r'^.*/user/(\d*)/profile$', link.get('href'))
+            match = re.search(r'^.*/user/(\d*)/profile$', link.attrs['href'])
 
             if match is not None and match.group(1) is not None:
                 self._profile_id = match.group(1)
@@ -67,7 +67,7 @@ class RequestHandler(object):
         first_air_date = None
         seasons = {}
 
-        url = urljoin(PAGE_URL, f'show/{tv_show_id}/')
+        url = urljoin(PAGE_URL, f'show/{tv_show_id}')
         response = self._session.get(url)
 
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -97,6 +97,13 @@ class RequestHandler(object):
                     .text
                 episode_number = self._remove_extra_spaces(episode_number_raw)
 
+                episode_url = episode.find('a').attrs['href']
+                episode_id = episode_url.split('/')[-1]
+
+                episode_title_raw = episode.find('span', {'class': 'episode-name'}) \
+                    .text
+                episode_title = self._remove_extra_spaces(episode_title_raw.replace('\n', ''))
+
                 is_active = episode.find('a', {'class': 'watched-btn'}) \
                     .attrs['class']
 
@@ -105,12 +112,9 @@ class RequestHandler(object):
                 else:
                     episode_state = False
 
-                episode_title_raw = episode.find('span', {'class': 'episode-name'}) \
-                    .text
-                episode_title = self._remove_extra_spaces(episode_title_raw.replace('\n', ''))
-
                 if episode_state or episode_title:
                     episodes[episode_number] = {
+                        'id': episode_id,
                         'title': episode_title,
                         'watched': episode_state
                     }
@@ -159,8 +163,7 @@ class RequestHandler(object):
 
         tv_show_ids = []
         for link in links:
-            match = re.search(r'^.*/show/(\d*)', link.get('href'))
-            tv_show_ids.append(match.group(1))
+            tv_show_ids.append(link.attrs['href'].split('/')[-1])
 
         logger.info(f'Collected {len(tv_show_ids)} show ids')
 
