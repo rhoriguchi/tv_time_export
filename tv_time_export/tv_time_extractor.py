@@ -38,7 +38,7 @@ class TvTimeExtractor(object):
             .replace(':', '')
         file_name = f'{username}_{datetime_string}.json'
 
-        file_path = save_path.joinpath(file_name)
+        file_path = save_path / file_name
 
         logger.info(f'Saving data to "{file_path}"')
 
@@ -55,9 +55,9 @@ class TvTimeExtractor(object):
             if config_path.is_absolute():
                 return config_path
             else:
-                return Path.cwd().joinpath(config_path)
+                return Path.cwd() / config_path
         else:
-            return Path.cwd().joinpath('config.yaml')
+            return Path.cwd() / 'config.yaml'
 
     def _read_config(self):
         config_path = self._get_config_path()
