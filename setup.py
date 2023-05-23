@@ -10,7 +10,7 @@ setup(
     install_requires=[
         'PyYAML==6.0',
         'beautifulsoup4==4.11.1',
-        'requests==2.28.1',
+        'requests==2.31.0',
         'retrying==1.3.4'
     ],
     license='AGPL-3.0',
