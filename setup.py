@@ -8,8 +8,8 @@ setup(
         'console_scripts': ['tv_time_export = tv_time_export.__main__:main'],
     },
     install_requires=[
+        'PyJWT==2.8.0',
         'PyYAML==6.0',
-        'beautifulsoup4==4.12.2',
         'requests==2.31.0',
         'retrying==1.3.4'
     ],

@@ -1,10 +1,10 @@
+import sys
+
 import json
 import logging
-import sys
+import yaml
 from datetime import datetime
 from pathlib import Path
-
-import yaml
 
 from tv_time_export.request_handler import RequestHandler
 
@@ -18,13 +18,9 @@ class TvTimeExtractor(object):
     def get_all_tv_show_states(self):
         request_handler = RequestHandler(self._content['username'], self._content['password'])
 
-        try:
-            request_handler.login()
-            tv_show_states = request_handler.get_all_tv_show_states()
-        finally:
-            request_handler.logout()
+        request_handler.login()
 
-        return tv_show_states
+        return request_handler.get_all_tv_show_states()
 
     def save_tv_show_states(self, tv_show_states):
         save_path = self._content['save_path']
@@ -85,7 +81,7 @@ class TvTimeExtractor(object):
                 raise ValueError(f'Config path "{content["save_path"]}" does not exist')
 
             log_content = dict(content)
-            log_content['password'] = '*' * len(log_content['password'])
+            log_content['password'] = '*****'
             log_content['save_path'] = str(log_content['save_path'])
 
             logger.info(f'Config values: {log_content}')

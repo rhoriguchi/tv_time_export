@@ -1,18 +1,11 @@
-import logging
-import re
 from multiprocessing.dummy import Pool as ThreadPool
-from urllib.parse import urljoin
 
+import jwt
+import logging
 import requests
-from bs4 import BeautifulSoup
 from retrying import retry
 
-PAGE_URL = 'https://www.tvtime.com'
-
-TV_TIME_ERROR_MESSAGES = [
-    'This user does not exist',
-    'You did not give the correct password for this username'
-]
+BASE_URL = 'https://app.tvtime.com'
 
 logger = logging.getLogger(__name__)
 
@@ -27,32 +20,29 @@ class RequestHandler(object):
     @staticmethod
     def _get_session():
         session = requests.session()
-        session.headers.update({'User-agent': 'Mozilla/5.0'})
         return session
 
     def login(self):
         logger.info(f'Logging in to TV Time with user "{self._username}"')
 
-        url = urljoin(PAGE_URL, 'signin')
-        data = {'username': self._username, 'password': self._password}
-        response = self._session.post(url, data=data)
+        anonymous_tokens = self._session.post(f'{BASE_URL}/sidecar?o=https://api2.tozelabs.com/v2/user') \
+            .json()['tvst_access_token']
 
-        self._check_response(response)
-        soup = BeautifulSoup(response.content, 'html.parser')
+        response = self._session.post(
+            f'{BASE_URL}/sidecar?o=https://auth.tvtime.com/v1/login',
+            headers={'Authorization': f'Bearer {anonymous_tokens}'},
+            json={'username': self._username, 'password': self._password}
+        )
 
-        for link in soup.find_all('a'):
-            match = re.search(r'^.*/user/(\d*)/profile$', link.attrs['href'])
+        if not response.ok:
+            raise ValueError(
+                f'TV Time returned status code {response.status_code} with reason: {response.reason}')
 
-            if match is not None and match.group(1) is not None:
-                self._profile_id = match.group(1)
+        token = response.json()['data']['jwt_token']
 
-    def logout(self):
-        logger.info('Logging out of TV Time')
+        self._session.headers.update({'Authorization': f'Bearer {token}'})
 
-        url = urljoin(PAGE_URL, 'signout')
-        self._session.get(url)
-
-        self._profile_id = None
+        self._profile_id = jwt.decode(token, options={"verify_signature": False})['id']
 
     def get_all_tv_show_states(self):
         tv_show_ids = self._get_tv_show_ids()
@@ -64,107 +54,54 @@ class RequestHandler(object):
 
     @retry(stop_max_attempt_number=3, wait_fixed=30 * 1_000)
     def _get_tv_show_states(self, tv_show_id):
-        first_air_date = None
-        seasons = {}
+        response = self._session.get(f'{BASE_URL}/sidecar?o=https://api2.tozelabs.com/v2/show/{tv_show_id}/extended')
 
-        url = urljoin(PAGE_URL, f'show/{tv_show_id}')
-        response = self._session.get(url)
-
-        soup = BeautifulSoup(response.content, 'html.parser')
-
-        title_raw = soup.find(id='top-banner') \
-            .find('h1') \
-            .text
-        title = re.sub(r'\(\d{4}\)$', '', self._remove_extra_spaces(title_raw))
+        tv_show = response.json()
+        title = tv_show["name"]
 
         logger.info(f'Collecting state for "{title}"')
 
-        season_number = 1
-        while True:
+        seasons = {}
+
+        for season in tv_show['seasons']:
             episodes = {}
 
-            season = soup.find(id=f'season{season_number}-content')
-            if season is None:
-                break
-
-            for episode in season.find_all('li', {'class': 'episode-wrapper'}):
-                if first_air_date is None:
-                    first_air_date_raw = episode.find('span', {'class': 'episode-air-date'}) \
-                        .text
-                    first_air_date = self._remove_extra_spaces(first_air_date_raw).split('-')[0]
-
-                episode_number_raw = episode.find('span', {'class': 'episode-nb-label'}) \
-                    .text
-                episode_number = self._remove_extra_spaces(episode_number_raw)
-
-                episode_url = episode.find('a').attrs['href']
-                episode_id = episode_url.split('/')[-1]
-
-                episode_title_raw = episode.find('span', {'class': 'episode-name'}) \
-                    .text
-                episode_title = self._remove_extra_spaces(episode_title_raw.replace('\n', ''))
-
-                is_active = episode.find('a', {'class': 'watched-btn'}) \
-                    .attrs['class']
-
-                if 'active' in is_active:
-                    episode_state = True
-                else:
-                    episode_state = False
-
-                if episode_state or episode_title:
-                    episodes[episode_number] = {
-                        'id': episode_id,
-                        'title': episode_title,
-                        'watched': episode_state
-                    }
+            for episode in season['episodes']:
+                episodes[episode['number']] = {
+                    'id': episode['id'],
+                    'title': episode['name'],
+                    'watched': episode['is_watched']
+                }
 
             if episodes:
-                seasons[season_number] = episodes
-
-            season_number += 1
+                seasons[season['number']] = episodes
 
         return {
             'id': tv_show_id,
             'title': title,
-            'first_air_date': first_air_date if first_air_date else 'Unknown',
+            'first_air_date': tv_show['first_air_date'],
             'seasons': seasons
         }
 
-    @staticmethod
-    def _remove_extra_spaces(text):
-        return ' '.join(text.split())
-
-    def _check_response(self, response):
-        self._check_response_status_code(response)
-        self._check_response_content(response)
-
-    @staticmethod
-    def _check_response_status_code(response):
-        if not response.ok:
-            raise ValueError(
-                f'TV Time returned status code {response.status_code} with reason: {response.reason}')
-
-    @staticmethod
-    def _check_response_content(response):
-        for error_message in TV_TIME_ERROR_MESSAGES:
-            if error_message in str(response.content):
-                raise ValueError(f'TV Time returned: {error_message}')
-
     @retry(stop_max_attempt_number=3, wait_fixed=30 * 1_000)
     def _get_tv_show_ids(self):
-        url = urljoin(PAGE_URL, f'user/{self._profile_id}/profile')
-        response = self._session.get(url)
-
-        soup = BeautifulSoup(response.content, 'html.parser')
-        links = soup.find(id='all-shows') \
-            .find('ul', {'class': 'shows-list'}) \
-            .find_all('a', {'class': 'show-link'})
+        limit = 500
+        offset = 0
 
         tv_show_ids = []
-        for link in links:
-            tv_show_ids.append(link.attrs['href'].split('/')[-1])
 
-        logger.info(f'Collected {len(tv_show_ids)} show ids')
+        while True:
+            response = self._session.get(
+                f'{BASE_URL}/sidecar?o=https://api2.tozelabs.com/v2/user/{self._profile_id}&fields=shows.fields(id).offset({offset}).limit({limit})')
+
+            shows = response.json()['shows']
+
+            for show in shows:
+                tv_show_ids.append(show['id'])
+
+            if len(shows) != limit:
+                break
+
+            offset = offset + limit
 
         return sorted(tv_show_ids)
