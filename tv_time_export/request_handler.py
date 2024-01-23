@@ -5,7 +5,7 @@ import logging
 import requests
 from retrying import retry
 
-BASE_URL = 'https://app.tvtime.com'
+URL = 'https://app.tvtime.com/sidecar'
 
 logger = logging.getLogger(__name__)
 
@@ -25,11 +25,14 @@ class RequestHandler(object):
     def login(self):
         logger.info(f'Logging in to TV Time with user "{self._username}"')
 
-        anonymous_tokens = self._session.post(f'{BASE_URL}/sidecar?o=https://api2.tozelabs.com/v2/user') \
-            .json()['tvst_access_token']
+        anonymous_tokens = self._session.post(
+            URL,
+            params={'o': 'https://api2.tozelabs.com/v2/user'}
+        ).json()['tvst_access_token']
 
         response = self._session.post(
-            f'{BASE_URL}/sidecar?o=https://auth.tvtime.com/v1/login',
+            URL,
+            params={'o': 'https://auth.tvtime.com/v1/login'},
             headers={'Authorization': f'Bearer {anonymous_tokens}'},
             json={'username': self._username, 'password': self._password}
         )
@@ -54,7 +57,10 @@ class RequestHandler(object):
 
     @retry(stop_max_attempt_number=3, wait_fixed=30 * 1_000)
     def _get_tv_show_states(self, tv_show_id):
-        response = self._session.get(f'{BASE_URL}/sidecar?o=https://api2.tozelabs.com/v2/show/{tv_show_id}/extended')
+        response = self._session.get(
+            URL,
+            params={'o': f'https://api2.tozelabs.com/v2/show/{tv_show_id}/extended'}
+        )
 
         tv_show = response.json()
         title = tv_show["name"]
@@ -92,7 +98,12 @@ class RequestHandler(object):
 
         while True:
             response = self._session.get(
-                f'{BASE_URL}/sidecar?o=https://api2.tozelabs.com/v2/user/{self._profile_id}&fields=shows.fields(id).offset({offset}).limit({limit})')
+                URL,
+                params={
+                    'o': f'https://api2.tozelabs.com/v2/user/{self._profile_id}',
+                    'fields': f'shows.fields(id).offset({offset}).limit({limit})'
+                }
+            )
 
             shows = response.json()['shows']
 
