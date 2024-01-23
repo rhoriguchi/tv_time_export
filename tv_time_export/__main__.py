@@ -1,14 +1,22 @@
-import logging
 import sys
+
+import logging
 
 from tv_time_export.tv_time_extractor import TvTimeExtractor
 
 
-def main():
+def _setup_logging():
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 
     logging.basicConfig(level=logging.INFO, handlers=[console_handler])
+
+    urllib3_logger = logging.getLogger('urllib3.connectionpool')
+    urllib3_logger.setLevel(logging.ERROR)
+
+
+def main():
+    _setup_logging()
 
     try:
         extractor = TvTimeExtractor()
