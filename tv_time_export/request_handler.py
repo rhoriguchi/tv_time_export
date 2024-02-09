@@ -50,6 +50,8 @@ class RequestHandler(object):
     def get_all_tv_show_states(self):
         tv_show_ids = self._get_tv_show_ids()
 
+        logger.info(f'Found "{len(tv_show_ids)}" tv shows')
+
         with ThreadPool() as pool:
             tv_show_states = list(pool.imap(self._get_tv_show_states, tv_show_ids))
 
@@ -65,7 +67,7 @@ class RequestHandler(object):
         tv_show = response.json()
         title = tv_show["name"]
 
-        logger.info(f'Collecting state for "{title}"')
+        logger.info(f'Collecting watch status for "{title}"')
 
         seasons = {}
 
