@@ -10,7 +10,7 @@ setup(
     install_requires=[
         'PyJWT==2.8.0',
         'PyYAML==6.0.1',
-        'requests==2.31.0',
+        'requests==2.32.0',
         'retrying==1.3.4'
     ],
     license='AGPL-3.0',
