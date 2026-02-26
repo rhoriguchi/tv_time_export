@@ -5,8 +5,6 @@ import logging
 import requests
 from retrying import retry
 
-URL = 'https://app.tvtime.com/sidecar'
-
 logger = logging.getLogger(__name__)
 
 
@@ -26,13 +24,11 @@ class RequestHandler(object):
         logger.info(f'Logging in to TV Time with user "{self._username}"')
 
         anonymous_tokens = self._session.post(
-            URL,
-            params={'o': 'https://api2.tozelabs.com/v2/user'}
+            'https://api2.tozelabs.com/v2/user',
         ).json()['tvst_access_token']
 
         response = self._session.post(
-            URL,
-            params={'o': 'https://auth.tvtime.com/v1/login'},
+            'https://auth.tvtime.com/v1/login',
             headers={'Authorization': f'Bearer {anonymous_tokens}'},
             json={'username': self._username, 'password': self._password}
         )
@@ -60,8 +56,7 @@ class RequestHandler(object):
     @retry(stop_max_attempt_number=3, wait_fixed=30 * 1_000)
     def _get_tv_show_states(self, tv_show_id):
         response = self._session.get(
-            URL,
-            params={'o': f'https://api2.tozelabs.com/v2/show/{tv_show_id}/extended'}
+            f'https://api2.tozelabs.com/v2/show/{tv_show_id}/extended',
         )
 
         tv_show = response.json()
@@ -100,9 +95,8 @@ class RequestHandler(object):
 
         while True:
             response = self._session.get(
-                URL,
+                f'https://api2.tozelabs.com/v2/user/{self._profile_id}',
                 params={
-                    'o': f'https://api2.tozelabs.com/v2/user/{self._profile_id}',
                     'fields': f'shows.fields(id).offset({offset}).limit({limit})'
                 }
             )
