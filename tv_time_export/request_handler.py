@@ -83,6 +83,7 @@ class RequestHandler(object):
             'id': tv_show_id,
             'title': title,
             'first_air_date': tv_show['first_air_date'],
+            'archived': tv_show['is_archived'],
             'seasons': seasons
         }
 
