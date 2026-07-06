@@ -23,7 +23,8 @@ tv_time_export [configPath]
 If no `sava_path` is given, it exports to current dir.
 
 ```yaml
-username: ****
-password: ****
+users:
+  - username: '****'
+    password: '****'
 sava_path: /tmp/exports
 ```
