@@ -20,6 +20,7 @@ class RequestHandler(object):
         session = requests.session()
         return session
 
+    @retry(stop_max_attempt_number=3, wait_fixed=30 * 1_000)
     def login(self):
         logger.info(f'Logging in to TV Time with user "{self._username}"')
 
