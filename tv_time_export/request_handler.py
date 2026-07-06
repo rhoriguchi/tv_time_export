@@ -73,7 +73,8 @@ class RequestHandler(object):
                 episodes[episode['number']] = {
                     'id': episode['id'],
                     'title': episode['name'],
-                    'watched': episode['is_watched']
+                    'watched': episode['is_watched'],
+                    'watched_count': episode['watched_count']
                 }
 
             if episodes:
